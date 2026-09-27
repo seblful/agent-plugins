@@ -45,5 +45,4 @@ Design **deep modules**: a lot of behaviour behind a small interface, placed at 
 ## Going deeper
 
 - [DEEPENING.md](DEEPENING.md) — deepening a cluster given its dependencies: dependency categories, seam discipline, replace-don't-layer testing.
-- [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md) — exploring alternative interfaces with parallel subagents, compared on depth, locality, and seam placement.
 - [REPORT-TEMPLATE.html](REPORT-TEMPLATE.html) — the page `/refactor-interfaces` fills in: fixed styling, fixed diagram vocabulary, one card per candidate. Fill its slots; never restyle it.

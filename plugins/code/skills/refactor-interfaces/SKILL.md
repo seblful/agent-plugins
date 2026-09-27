@@ -31,7 +31,7 @@ Walk the codebase with `Explore` agents. Follow friction, not a checklist:
 
 Apply the **deletion test** to every suspect: does deleting it concentrate complexity, or just move it? "Concentrates" is the signal.
 
-**Output:** up to six candidates, each with its files, dependency category, and strength.
+**Output:** up to five candidates, each with its files, dependency category, and strength.
 
 ## Phase 2 — Publish the report
 
@@ -39,13 +39,13 @@ Apply the **deletion test** to every suspect: does deleting it concentrate compl
 
 > **Fill slots, never restyle.** Don't touch `<style>`, add a class, a font, a colour, or a section. Add a candidate by duplicating the `<article class="candidate">` block whole.
 > **One diagram form.** Every diagram is a mermaid `flowchart LR` in a before/after pair, carrying the template's `classDef` block unchanged — that block makes the legend true.
-> **Fixed identity.** Title `Interface Audit — <repo>`, `favicon` 🧱, `icon` `report`, filename `refactor-interfaces-audit.html` — so a re-review lands on the same URL.
+> **Fixed identity.** Title `Interface Audit — <repo>`, `icon` `report`, filename `refactor-interfaces-audit.html` — so a re-review lands on the same URL.
 
-If the assistant can publish an Artifact, load `artifact-design` for its publishing contract and publish the HTML with the scratchpad path, `favicon`, `icon`, and a one-sentence description naming the repo and candidate count. Otherwise give the user the local HTML file path. **The template owns the look.**
+**Publish it as an Artifact** — the filled file as it is, with `icon` `report` and a one-sentence description naming the repo and candidate count. The template *is* the predefined design: load no design skill and write no page of your own. **The template owns the look.** Only if the assistant cannot publish an Artifact, give the user the local HTML file path.
 
 ### What fills the slots
 
-Header: repo, date, candidate count. **Rank `Strong`, then `Worth exploring`, then `Speculative`**, numbered in that order. **Six candidates maximum** — a seventh means the cut is not sharp enough.
+Header: repo, date, candidate count. **Rank `Strong`, then `Worth exploring`, then `Speculative`**, numbered in that order. **Five candidates maximum** — a sixth means the cut is not sharp enough.
 
 Each card:
 
@@ -68,37 +68,48 @@ Each card:
 
 A dashed link (`-.->`) is a seam; leakage is a red link set with `linkStyle`. Keep the template's `theme: neutral` frontmatter — Mermaid takes its palette from its own theme. **No other diagram kinds** — sequence diagrams, hand-drawn SVG, layer stacks — each would make this report a different document from the last.
 
-**Do not propose interfaces yet.** Ask: "Which of these would you like to explore?"
+**Do not propose interfaces yet.** Ask once: "Which of these should I implement? (e.g. `1, 3`)"
 
-## Phase 3 — Design the chosen candidate
+## Phase 3 — Design every chosen candidate, approve once
 
-Walk the design with the user — constraints, dependencies, the shape of the deepened module, what sits behind the seam, which tests survive. Interview, sketch, or propose directly, whichever fits.
+**One message, one approval.** For every chosen candidate, in implementation order, give one block:
 
-**To explore alternative interfaces**, use the design-it-twice pattern in the `codebase-design` skill.
+- **Interface** — the new entry points, parameters, invariants, and error modes
+- **Behind the seam** — what moves inside and stops being a caller's problem
+- **Callers** — what changes at each call site
+- **Tests** — which move to the new interface, which are deleted
 
-**Output:** an agreed design — the new interface, what moves behind the seam, which callers and tests change. **Implement nothing until the user agrees.**
+Propose one design per candidate — the strongest you see, not a menu of alternatives.
 
-## Phase 4 — Implement and commit, one candidate at a time
+Order candidates so each builds on the last: one that reshapes a module another candidate touches goes first.
+
+**Output:** the designs the user approved, in order, with any edits they asked for. **Implement nothing until the user approves.** A design the user rejects drops out; the rest proceed.
+
+## Phase 4 — Implement and commit every approved candidate
 
 **This command commits** — a deliberate exception to "do not commit unless asked": each candidate is one reviewable, revertable unit, so it lands as one commit the moment it is done.
 
-**You implement, not subagents.** Subagents stop at Phase 1. From here, work in the main session, one candidate at a time: the next starts only after the last is committed and picked onto the target branch — each builds on the interface the one before it left.
+**You implement, not subagents.** Subagents stop at Phase 1. Work in the main session through the approved list in order, without asking between candidates — the next starts only after the last is committed and picked onto the target branch.
 
 Before the first candidate:
 
 - **Clean tree.** `git status --porcelain` must print nothing. Otherwise stop and ask — a candidate's commit holds only its own change.
 - **Target branch.** The branch checked out now; `git branch --show-current` names it. Every candidate lands there.
-- **Baseline.** Find the verification commands by role — test, type-check, lint, build — and run them. Record each as green or red.
+- **One worktree for the run.** `git worktree add --detach <path> HEAD`, with `<path>` outside the repo (the session scratchpad) so it never shows as untracked. It is a fresh checkout: run the project's install step there once if the baseline needs one. Work only inside it.
+- **Baseline.** Find the verification commands by role — test, type-check, lint, build — and run them in the worktree. Record each as green or red.
 - **Commit style.** Read `git log --oneline -10` and match its subject convention.
 
-Per candidate:
+Per candidate, in the worktree:
 
-1. **Open a worktree.** `git worktree add --detach <path> HEAD`, with `<path>` outside the repo (the session scratchpad) so it never shows as untracked. Work only inside it. It is a fresh checkout: run the project's install step there first if the baseline needs one.
-2. **Implement the agreed design.** Update every caller; no compatibility shim unless asked.
-3. **Replace, don't layer.** Tests move to the new interface; delete the shallow-module tests they replace.
-4. **Verify in the worktree.** Re-run the baseline. Red where it was green → fix it. **Never commit a red the change caused** — if it will not go green, stop and report, leaving the worktree uncommitted for the user to inspect.
-5. **Commit in the worktree.** Stage the candidate's files by path — deletions included, never `git add -A` — and commit: the subject names the deepening in the log's style; the body carries the card's problem and solution and the verification result.
-6. **Cherry-pick onto the target branch.** In the main checkout, `git cherry-pick <sha>` with the hash from `git -C <path> rev-parse HEAD`. On a conflict, `git cherry-pick --abort` and stop and report — never resolve it by guessing. Then `git worktree remove <path>`.
-7. **Report and ask.** Give the commit hash on the target branch, then ask which candidate is next — back to Phase 3 — or stop.
+1. **Implement the approved design.** Update every caller; no compatibility shim unless asked.
+2. **Replace, don't layer.** Tests move to the new interface; delete the shallow-module tests they replace.
+3. **Verify.** Re-run the baseline. Red where it was green → fix it. **Never commit a red the change caused** — if it will not go green, stop the run and report, leaving the change uncommitted in the worktree for the user to inspect.
+4. **Commit.** Stage the candidate's files by path — deletions included, never `git add -A` — and commit: the subject names the deepening in the log's style; the body carries the card's problem and solution and the verification result.
+5. **Cherry-pick onto the target branch.** In the main checkout, `git cherry-pick <sha>` with the hash from `git -C <path> rev-parse HEAD`. On a conflict, `git cherry-pick --abort` and stop the run and report — never resolve it by guessing.
+6. **Say it landed** — one line: candidate, commit hash on the target branch — and go straight to the next.
+
+**Stop the run only for** a red the change caused, a cherry-pick conflict, or a design that turns out not to fit the code — then ask. Anything else, keep going.
+
+After the last candidate: `git worktree remove <path>`, then report every commit hash in order and the final verification result.
 
 Each candidate is exactly one commit on the target branch. Never push, and never amend or squash an earlier candidate's commit.
