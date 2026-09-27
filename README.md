@@ -1,6 +1,6 @@
 # Seblful Coding Assistant Workflows
 
-A curated collection of workflows for Claude Code, Codex, and OpenCode, grouped by **what they act on**: code in one language, any codebase, Obsidian notes, the conversation itself, and project work across repositories. Claude Code uses the native plugin marketplace; Codex and OpenCode use Agent Skills.
+A curated collection of workflows for Claude Code, Codex, and OpenCode, grouped by **what they act on**: code in one language, any codebase, Obsidian notes, the conversation itself, and project work across repositories. Claude Code and Codex install it as a plugin marketplace; OpenCode uses the skill directories directly.
 
 > **⚠️ Important:** Make sure you trust a plugin before installing, updating, or using it. Anthropic does not control what MCP servers, files, or other software are included in plugins and cannot verify that they will work as intended or that they won't change. See each plugin's source for more information.
 
@@ -36,19 +36,32 @@ Then install plugins individually:
 
 Or browse them in `/plugin > Discover`.
 
-### Codex and OpenCode
+### Codex
 
-Every skill lives in `plugins/<plugin>/skills/<skill>/` and is a standard Agent Skill. Copy a plugin's skill directories into `.agents/skills/` in your project. Put them in `~/.agents/skills/` instead to make them available across your projects. Both Codex and OpenCode discover skills at these paths. For example, to add `code-sweep` to one project, the result should be:
+Codex reads the same marketplace. Add it, then install plugins individually:
+
+```
+codex plugin marketplace add seblful/agent-plugins
+codex plugin add languages@agent-plugins
+codex plugin add code@agent-plugins
+codex plugin add obsidian-vault@agent-plugins
+codex plugin add lenses@agent-plugins
+codex plugin add meta@agent-plugins
+```
+
+Pull new versions with `codex plugin marketplace upgrade`. The Claude subagents in `agents/` are not loaded; the skills they point to are.
+
+### OpenCode
+
+Every skill lives in `plugins/<plugin>/skills/<skill>/` and is a standard Agent Skill. Copy a plugin's skill directories into `.agents/skills/` in your project. Put them in `~/.agents/skills/` instead to make them available across your projects. For example, to add `code-sweep` to one project, the result should be:
 
 ```text
 your-project/.agents/skills/code-sweep/SKILL.md
 ```
 
-Copy whole skill directories, and copy a plugin's skills together: a workflow reads its sibling reference skill (`code-sweep` reads `code-smells`; every `vault-*` skill reads `vault-conventions`). No installer or setup script is required.
+Copy whole skill directories, and copy a plugin's skills together: a workflow reads its sibling reference skill (`code-sweep` reads `code-smells`; every `vault-*` skill reads `vault-conventions`). There is no marketplace, so re-copy to update. The layout is documented in [OpenCode's skills docs](https://opencode.ai/docs/skills); if a skill does not appear, restart OpenCode and check that `SKILL.md` is directly inside a named skill directory.
 
 Ask your assistant to use a workflow by its name, for example “use `code-sweep` on `src/`.” Skills can also be selected automatically when a request matches their descriptions. Claude Code exposes plugin skills as namespaced slash commands, such as `/code:code-sweep`. Some workflows require external tools named in their instructions, such as `gh`, Copier, or the Obsidian CLI. `refactor-interfaces` produces a local HTML report when the host cannot publish an Artifact.
-
-The `.agents/skills` layout is documented by [Codex](https://developers.openai.com/codex/skills) and [OpenCode](https://opencode.ai/docs/skills). If a skill does not appear, restart the assistant and check that `SKILL.md` is directly inside a named skill directory.
 
 ## Plugins
 

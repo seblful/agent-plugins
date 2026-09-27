@@ -1,6 +1,6 @@
 # AGENTS.md
 
-A coding assistant workflow repository for Claude Code, Codex, and OpenCode. Plugins live in `plugins/<name>/`, each with its own `.claude-plugin/plugin.json`; the Claude marketplace manifest is `.claude-plugin/marketplace.json`. Every workflow is an Agent Skill in `plugins/<name>/skills/<skill>/SKILL.md` — the one and only copy. Claude Code loads it through the plugin; Codex and OpenCode users copy a plugin's `skills/*` directories into `.agents/skills/`. There is no build step and no generated tree: **never commit a second copy of a skill or of a file it reads.**
+A coding assistant workflow repository for Claude Code, Codex, and OpenCode. Plugins live in `plugins/<name>/`, each with its own `.claude-plugin/plugin.json`; the Claude marketplace manifest is `.claude-plugin/marketplace.json`. Every workflow is an Agent Skill in `plugins/<name>/skills/<skill>/SKILL.md` — the one and only copy. Claude Code and Codex load it through the marketplace — Codex reads `.claude-plugin/marketplace.json` and each `.claude-plugin/plugin.json` as they are, so add no Codex manifest; OpenCode users copy a plugin's `skills/*` directories into `.agents/skills/`. There is no build step and no generated tree: **never commit a second copy of a skill or of a file it reads.**
 
 ## What to write: skill or agent
 
