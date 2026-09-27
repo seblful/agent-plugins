@@ -6,7 +6,7 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep, WebSearch, WebFetch
 
 # Rewrite Into Reference Note
 
-Refactor, correct, and expand fragmented notes into the vault's authoritative reference on the subject: audit and plan before touching anything, get approval, then rewrite. The authoring standard — audience, voice, technical standards, diagrams, document shape, and the two-step workflow — lives in [AUTHORING.md](../../AUTHORING.md); vault mechanics and the deterministic scripts live in [CONVENTIONS.md](../../CONVENTIONS.md). Read both before planning.
+Refactor, correct, and expand fragmented notes into the vault's authoritative reference on the subject: audit and plan before touching anything, get approval, then rewrite. The authoring standard — audience, voice, technical standards, diagrams, document shape, and the two-step workflow — lives in [AUTHORING.md](../vault-conventions/AUTHORING.md); vault mechanics and the deterministic scripts live in [CONVENTIONS.md](../vault-conventions/CONVENTIONS.md). Read both before planning.
 
 ## Input
 

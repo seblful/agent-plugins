@@ -6,7 +6,7 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 
 # Weekly Harvest
 
-Read weekly reports that haven't been harvested, lift the project-relevant knowledge out of them, write it into the appropriate project notes, then mark each report processed. Do not add wikilinks back to the source reports. Do not archive or move anything except the year sweep at the end. Folder layout, frontmatter, link, language, note-creation, date, and script rules live in [CONVENTIONS.md](../../CONVENTIONS.md).
+Read weekly reports that haven't been harvested, lift the project-relevant knowledge out of them, write it into the appropriate project notes, then mark each report processed. Do not add wikilinks back to the source reports. Do not archive or move anything except the year sweep at the end. Folder layout, frontmatter, link, language, note-creation, date, and script rules live in [CONVENTIONS.md](../vault-conventions/CONVENTIONS.md).
 
 ## Steps
 
@@ -43,7 +43,7 @@ After harvesting a report, set `harvested: true` in its frontmatter so it isn't 
 
 ### 6. Year sweep
 
-After step 5, run the year sweep on `Weekly/`: `python "$CLAUDE_PLUGIN_ROOT/scripts/year_sweep.py" --vault VAULT --apply` (CONVENTIONS → Deterministic checks, Folder roles and the archive model). Everything swept is already `harvested: true`.
+After step 5, run the year sweep on `Weekly/`: `python "<vault-conventions>/scripts/year_sweep.py" --vault VAULT --apply` (CONVENTIONS → Deterministic checks, Folder roles and the archive model). Everything swept is already `harvested: true`.
 
 ### 7. Report
 

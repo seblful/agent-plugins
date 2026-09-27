@@ -6,7 +6,7 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 
 # Daily Report Format
 
-Clean up today's daily report so it reads well as a future reference — without changing what was actually written. Shared frontmatter, link, heading, date, and language rules live in [CONVENTIONS.md](../../CONVENTIONS.md); this skill adds only what's specific to daily reports.
+Clean up today's daily report so it reads well as a future reference — without changing what was actually written. Shared frontmatter, link, heading, date, and language rules live in [CONVENTIONS.md](../vault-conventions/CONVENTIONS.md); this skill adds only what's specific to daily reports.
 
 ## Steps
 

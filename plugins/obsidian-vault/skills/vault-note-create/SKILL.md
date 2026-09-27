@@ -6,7 +6,7 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep, WebSearch, WebFetch
 
 # Create Reference Note
 
-Turn a subject into the vault's authoritative reference note on it: plan before writing, get approval, then author a deep note its intended reader can rely on. The authoring standard — audience, voice, technical standards, diagrams, document shape, and the two-step workflow — lives in [AUTHORING.md](../../AUTHORING.md); vault mechanics and the deterministic scripts live in [CONVENTIONS.md](../../CONVENTIONS.md). Read both before planning.
+Turn a subject into the vault's authoritative reference note on it: plan before writing, get approval, then author a deep note its intended reader can rely on. The authoring standard — audience, voice, technical standards, diagrams, document shape, and the two-step workflow — lives in [AUTHORING.md](../vault-conventions/AUTHORING.md); vault mechanics and the deterministic scripts live in [CONVENTIONS.md](../vault-conventions/CONVENTIONS.md). Read both before planning.
 
 ## Input
 

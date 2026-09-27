@@ -38,13 +38,13 @@ Or browse them in `/plugin > Discover`.
 
 ### Codex and OpenCode
 
-The top-level [`skills/`](skills) directory contains 28 standalone Agent Skills. Copy the skill directories you want into `.agents/skills/` in your project. Put them in `~/.agents/skills/` instead to make them available across your projects. Both Codex and OpenCode discover skills at these paths. For example, to add `code-sweep` to one project, the result should be:
+Every skill lives in `plugins/<plugin>/skills/<skill>/` and is a standard Agent Skill. Copy a plugin's skill directories into `.agents/skills/` in your project. Put them in `~/.agents/skills/` instead to make them available across your projects. Both Codex and OpenCode discover skills at these paths. For example, to add `code-sweep` to one project, the result should be:
 
 ```text
 your-project/.agents/skills/code-sweep/SKILL.md
 ```
 
-Copy the whole skill directory, including its references, templates, and scripts. No installer or setup script is required. `scripts/build_skills.py` is only for maintainers regenerating these standalone directories after editing the source plugin skills.
+Copy whole skill directories, and copy a plugin's skills together: a workflow reads its sibling reference skill (`code-sweep` reads `code-smells`; every `vault-*` skill reads `vault-conventions`). No installer or setup script is required.
 
 Ask your assistant to use a workflow by its name, for example “use `code-sweep` on `src/`.” Skills can also be selected automatically when a request matches their descriptions. Claude Code exposes plugin skills as namespaced slash commands, such as `/code:code-sweep`. Some workflows require external tools named in their instructions, such as `gh`, Copier, or the Obsidian CLI. `refactor-interfaces` produces a local HTML report when the host cannot publish an Artifact.
 
@@ -97,13 +97,15 @@ Alongside the pair, one workflow changes the codebase's *baseline* rather than i
 - **vault-accuracy-review** (skill) — Verify every claim in every note (excluding Logs and the archive) and stamp reviewed dates.
 - **vault-structural-scan** (skill) — Fix broken wikilinks, misplaced files, frontmatter errors, stale MOCs, plus dead weight (stubs, orphans, duplicates, empty notes).
 - **vault-wikilink-sprint** (skill) — Add inline wikilinks between conceptually related notes, starting at hub notes.
+- **vault-cleanup** (skill; Claude agent) — Mechanical file hygiene: attachment renames, markdown-to-wikilink conversion, orphan attachments, empty folders.
+- **vault-conventions** (reference skill) — The conventions, authoring standard, and deterministic scripts every routine above reads.
 
 ### lenses
 
 - **zoom-out** (skill) — Map the surrounding modules and callers when unfamiliar with an area.
 - **caveman** (skill) — Ultra-compressed terse communication mode (~75% token reduction).
 - **grill-me** (skill) — Stress-test a plan through relentless one-question-at-a-time interview.
-- **teach** (skill) — Stateful, multi-session teaching workspace: grounds every lesson in a mission, gathers high-trust resources, and builds storage strength through beautiful interactive HTML lessons, glossaries, and learning records. Its workspace file formats live in [`plugins/lenses/teach/`](plugins/lenses/teach).
+- **teach** (skill) — Stateful, multi-session teaching workspace: grounds every lesson in a mission, gathers high-trust resources, and builds storage strength through beautiful interactive HTML lessons, glossaries, and learning records. Its workspace file formats live in [`references/`](plugins/lenses/skills/teach/references).
 
 ### meta
 
@@ -113,21 +115,20 @@ Alongside the pair, one workflow changes the codebase's *baseline* rather than i
 
 ## Plugin Structure
 
-The source plugins follow the standard Claude Code plugin layout. Canonical workflows live in plugin skills; Claude agents point to them. `scripts/build_skills.py` builds the standalone top-level `skills/` packages with their references and scripts:
+The plugins follow the standard Claude Code plugin layout, and every skill directory is also a portable Agent Skill. Claude agents point to skills; a skill reaches only its own directory or a sibling skill:
 
 ```
 plugins/
 └── plugin-name/
     ├── .claude-plugin/
     │   └── plugin.json      # Plugin metadata (required)
-    ├── skills/              # Model- or user-invoked workflows
+    ├── skills/              # Agent Skills: workflows and reference skills
     │   └── <skill-name>/
-    │       └── SKILL.md
-    ├── agents/              # Subagents (optional)
-    │   └── <agent>.md
-    ├── scripts/             # Deterministic helpers shared by routines (optional)
-    ├── hooks/               # Lifecycle hooks (optional)
-    └── <reference>/         # Shared reference docs several routines defer to (optional)
+    │       ├── SKILL.md
+    │       ├── references/  # Files only this skill reads (optional)
+    │       └── scripts/     # Helpers this skill runs (optional)
+    └── agents/              # Claude subagents pointing at a skill (optional)
+        └── <agent>.md
 ```
 
 ## Contributing

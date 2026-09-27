@@ -6,7 +6,7 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 
 # Inbox Ingest
 
-The inbox holds raw captures dropped in without a home. File each into the place it belongs and leave the inbox empty: read it, decide where its knowledge goes, merge it there, relocate its images, wire the result into a MOC, then delete the consumed capture. Frontmatter, link, MOC-detection, note-creation, and date rules live in [CONVENTIONS.md](../../CONVENTIONS.md). Filing is triage, not deep authoring: when a capture becomes or substantially grows a knowledge note, hold it to the [AUTHORING.md](../../AUTHORING.md) standard, and hand the heavy jobs off to `vault-note-create` / `vault-note-rewrite` rather than doing them inline.
+The inbox holds raw captures dropped in without a home. File each into the place it belongs and leave the inbox empty: read it, decide where its knowledge goes, merge it there, relocate its images, wire the result into a MOC, then delete the consumed capture. Frontmatter, link, MOC-detection, note-creation, and date rules live in [CONVENTIONS.md](../vault-conventions/CONVENTIONS.md). Filing is triage, not deep authoring: when a capture becomes or substantially grows a knowledge note, hold it to the [AUTHORING.md](../vault-conventions/AUTHORING.md) standard, and hand the heavy jobs off to `vault-note-create` / `vault-note-rewrite` rather than doing them inline.
 
 **Process only the inbox.** Don't touch folders holding work the user is actively authoring (drafts, texts) — those are owned documents, not material to dissolve. If unsure whether a folder is an inbox or a drafts area, ask.
 

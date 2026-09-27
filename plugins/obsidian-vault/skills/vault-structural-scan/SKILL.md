@@ -6,7 +6,7 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 
 # Structural Scan
 
-Catch structural problems and dead weight that accumulated since the last scan and fix them while they're still recent. Every note should be self-consistent, locatable, connected, and worth keeping — either it holds knowledge worth having or it's a useful navigation point. Fix what you safely can in-place; **never delete a note** — flag deletion candidates for the user. Scope: whole vault. The canonical schema, link rules, heading rules, MOC detection, folder/archive model, and deterministic scripts live in [CONVENTIONS.md](../../CONVENTIONS.md); this command validates notes *against* them.
+Catch structural problems and dead weight that accumulated since the last scan and fix them while they're still recent. Every note should be self-consistent, locatable, connected, and worth keeping — either it holds knowledge worth having or it's a useful navigation point. Fix what you safely can in-place; **never delete a note** — flag deletion candidates for the user. Scope: whole vault. The canonical schema, link rules, heading rules, MOC detection, folder/archive model, and deterministic scripts live in [CONVENTIONS.md](../vault-conventions/CONVENTIONS.md); this command validates notes *against* them.
 
 This command owns the **editorial health of note content**. Mechanical, file-level hygiene — renaming attachments to convention, converting markdown links to wikilinks, orphan/broken *attachments*, empty *folders* — belongs to the `vault-cleanup` agent; flag such issues here rather than fixing them.
 
@@ -14,8 +14,8 @@ This command owns the **editorial health of note content**. Mechanical, file-lev
 
 Run the scripts (CONVENTIONS → Deterministic checks) and use their JSON as the worklist; apply judgment to every flag before acting:
 
-- `python "$CLAUDE_PLUGIN_ROOT/scripts/validate_frontmatter.py" --vault VAULT` — schema violations.
-- `python "$CLAUDE_PLUGIN_ROOT/scripts/check_links.py" --vault VAULT --orphans` — broken wikilinks and orphan notes.
+- `python "<vault-conventions>/scripts/validate_frontmatter.py" --vault VAULT` — schema violations.
+- `python "<vault-conventions>/scripts/check_links.py" --vault VAULT --orphans` — broken wikilinks and orphan notes.
 
 The scripts find candidates mechanically; deciding what to do with each is the work below.
 

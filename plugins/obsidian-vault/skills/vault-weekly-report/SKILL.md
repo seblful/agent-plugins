@@ -6,13 +6,13 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 
 # Weekly Report Creation
 
-Read this week's daily reports, produce a weekly report grouped by project, store it in `Weekly/`, then archive the daily notes. Folder layout, the archive model, frontmatter, link, language, date, and script rules live in [CONVENTIONS.md](../../CONVENTIONS.md).
+Read this week's daily reports, produce a weekly report grouped by project, store it in `Weekly/`, then archive the daily notes. Folder layout, the archive model, frontmatter, link, language, date, and script rules live in [CONVENTIONS.md](../vault-conventions/CONVENTIONS.md).
 
 ## Steps
 
 ### 1. Locate this week's daily reports
 
-Get the week's bounds and label deterministically: `python "$CLAUDE_PLUGIN_ROOT/scripts/iso_week.py"` (CONVENTIONS → Deterministic checks) returns the ISO week label and every date Monday→today. Find the daily notes for those dates (CONVENTIONS → Folder roles). If fewer than two exist, tell the user and ask whether to proceed.
+Get the week's bounds and label deterministically: `python "<vault-conventions>/scripts/iso_week.py"` (CONVENTIONS → Deterministic checks) returns the ISO week label and every date Monday→today. Find the daily notes for those dates (CONVENTIONS → Folder roles). If fewer than two exist, tell the user and ask whether to proceed.
 
 ### 2. Read everything first
 
@@ -20,7 +20,7 @@ Read all daily reports before writing — build a full picture of which projects
 
 ### 3. Year sweep
 
-Before writing, run the year sweep on `Weekly/`: `python "$CLAUDE_PLUGIN_ROOT/scripts/year_sweep.py" --vault VAULT --apply` (CONVENTIONS → Folder roles and the archive model).
+Before writing, run the year sweep on `Weekly/`: `python "<vault-conventions>/scripts/year_sweep.py" --vault VAULT --apply` (CONVENTIONS → Folder roles and the archive model).
 
 ### 4. Create the weekly report note
 

@@ -6,7 +6,7 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep, WebSearch, WebFetch
 
 # Factual Accuracy Review
 
-Read every note in scope and verify its content is factually correct. Fix errors in-place, then stamp each note so it isn't needlessly re-reviewed next session. Frontmatter, link, language, date, and script rules live in [CONVENTIONS.md](../../CONVENTIONS.md).
+Read every note in scope and verify its content is factually correct. Fix errors in-place, then stamp each note so it isn't needlessly re-reviewed next session. Frontmatter, link, language, date, and script rules live in [CONVENTIONS.md](../vault-conventions/CONVENTIONS.md).
 
 **Scope:** every note in the vault **except** Logs and the archive:
 

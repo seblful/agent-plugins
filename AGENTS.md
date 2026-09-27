@@ -1,6 +1,6 @@
-﻿# AGENTS.md
+# AGENTS.md
 
-A coding assistant workflow repository for Claude Code, Codex, and OpenCode. Plugins live in `plugins/<name>/`, each with its own `.claude-plugin/plugin.json`; the Claude marketplace manifest is `.claude-plugin/marketplace.json`. Canonical workflows live in `plugins/<name>/skills/<workflow>/SKILL.md`; Claude Code exposes them as slash commands. Claude agent files are thin adapters. `scripts/build_skills.py` builds self-contained packages in top-level `skills/`; regenerate them whenever a canonical skill, shared reference, or helper changes. Users copy those packages into `.agents/skills/`; they do not run the build script.
+A coding assistant workflow repository for Claude Code, Codex, and OpenCode. Plugins live in `plugins/<name>/`, each with its own `.claude-plugin/plugin.json`; the Claude marketplace manifest is `.claude-plugin/marketplace.json`. Every workflow is an Agent Skill in `plugins/<name>/skills/<skill>/SKILL.md` — the one and only copy. Claude Code loads it through the plugin; Codex and OpenCode users copy a plugin's `skills/*` directories into `.agents/skills/`. There is no build step and no generated tree: **never commit a second copy of a skill or of a file it reads.**
 
 ## What to write: skill or agent
 
@@ -9,16 +9,18 @@ A coding assistant workflow repository for Claude Code, Codex, and OpenCode. Plu
 | **skill** | canonical workflow or reference knowledge, usable across assistants | `plugins/<plugin>/skills/<name>/SKILL.md` |
 | **agent** | Claude subagent entry point to a canonical skill | `plugins/<plugin>/agents/<name>.md` |
 
-**Put workflow logic in a skill.** An agent must point to that skill without restating its procedure. Keep each generated package self-contained: scripts, templates, and reference files it uses must be included under its top-level `skills/<name>/` directory.
+**Put workflow logic in a skill.** An agent must point to that skill without restating its procedure.
 
-Process and reference are paired: `code-sweep` ↔ `code-smells`, `refactor-interfaces` ↔ `codebase-design`. The build copies each required reference into the workflow's standalone package.
+**A skill reaches only its own directory or a sibling skill's** (`../<sibling>/…`, relative to its `SKILL.md`). Both install layouts keep a plugin's skills side by side, so these paths work in every assistant; `../../` and `$CLAUDE_PLUGIN_ROOT` do not. A file several skills share becomes its own reference skill — `vault-conventions` holds the vault conventions, authoring standard, and scripts.
+
+Process and reference are paired: `code-sweep` ↔ `code-smells`, `refactor-interfaces` ↔ `codebase-design`, `docs-sweep` ↔ `writing-docs`. The workflow loads its reference skill by name — never copy it in.
 
 ## Layout and frontmatter
 
 - kebab-case directories; `SKILL.md` uppercase; a skill's name **is** its Claude slash name, namespaced by plugin.
-- **Skill** — `name`, `description`, plus Claude-specific `allowed-tools` and `argument-hint` when needed. The standalone build retains portable metadata only. **Agent** — `name`, `description`, optional `tools`.
+- **Skill** — `name`, `description`, plus Claude-specific `allowed-tools` and `argument-hint` only when needed; the body must work without them. **Agent** (Claude-only) — `name`, `description`, optional `tools`.
 - The `description` is what makes a skill trigger. Write it as *when to use this*, name the triggers, and name what it is **not** for.
-- `plugins/obsidian-vault/` has its own `AUTHORING.md` and `CONVENTIONS.md` — read them before touching anything in that plugin.
+- The `vault-conventions` skill holds `CONVENTIONS.md` and `AUTHORING.md` — read them before touching anything in `plugins/obsidian-vault/`.
 
 ## Voice
 

@@ -35,7 +35,7 @@ Apply the **deletion test** to every suspect: does deleting it concentrate compl
 
 ## Phase 2 — Publish the report
 
-**The page design is decided.** Copy the `REPORT-TEMPLATE.html` from the `codebase-design` skill (in Claude Code, `$CLAUDE_PLUGIN_ROOT/skills/codebase-design/REPORT-TEMPLATE.html`) to the session scratchpad as `refactor-interfaces-audit.html` and fill its slots:
+**The page design is decided.** Copy [`REPORT-TEMPLATE.html`](../codebase-design/REPORT-TEMPLATE.html) from the sibling `codebase-design` skill to the session scratchpad as `refactor-interfaces-audit.html` and fill its slots:
 
 > **Fill slots, never restyle.** Don't touch `<style>`, add a class, a font, a colour, or a section. Add a candidate by duplicating the `<article class="candidate">` block whole.
 > **One diagram form.** Every diagram is a mermaid `flowchart LR` in a before/after pair, carrying the template's `classDef` block unchanged — that block makes the legend true.
