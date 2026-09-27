@@ -82,18 +82,23 @@ Walk the design with the user — constraints, dependencies, the shape of the de
 
 **This command commits** — a deliberate exception to "do not commit unless asked": each candidate is one reviewable, revertable unit, so it lands as one commit the moment it is done.
 
+**You implement, not subagents.** Subagents stop at Phase 1. From here, work in the main session, one candidate at a time: the next starts only after the last is committed and picked onto the target branch — each builds on the interface the one before it left.
+
 Before the first candidate:
 
 - **Clean tree.** `git status --porcelain` must print nothing. Otherwise stop and ask — a candidate's commit holds only its own change.
+- **Target branch.** The branch checked out now; `git branch --show-current` names it. Every candidate lands there.
 - **Baseline.** Find the verification commands by role — test, type-check, lint, build — and run them. Record each as green or red.
 - **Commit style.** Read `git log --oneline -10` and match its subject convention.
 
 Per candidate:
 
-1. **Implement the agreed design.** Update every caller; no compatibility shim unless asked.
-2. **Replace, don't layer.** Tests move to the new interface; delete the shallow-module tests they replace.
-3. **Verify.** Re-run the baseline. Red where it was green → fix it. **Never commit a red the change caused** — if it will not go green, stop and report, uncommitted.
-4. **Commit.** Stage the candidate's files by path — deletions included, never `git add -A` — and commit: the subject names the deepening in the log's style; the body carries the card's problem and solution and the verification result.
-5. **Report and ask.** Give the commit hash, then ask which candidate is next — back to Phase 3 — or stop.
+1. **Open a worktree.** `git worktree add --detach <path> HEAD`, with `<path>` outside the repo (the session scratchpad) so it never shows as untracked. Work only inside it. It is a fresh checkout: run the project's install step there first if the baseline needs one.
+2. **Implement the agreed design.** Update every caller; no compatibility shim unless asked.
+3. **Replace, don't layer.** Tests move to the new interface; delete the shallow-module tests they replace.
+4. **Verify in the worktree.** Re-run the baseline. Red where it was green → fix it. **Never commit a red the change caused** — if it will not go green, stop and report, leaving the worktree uncommitted for the user to inspect.
+5. **Commit in the worktree.** Stage the candidate's files by path — deletions included, never `git add -A` — and commit: the subject names the deepening in the log's style; the body carries the card's problem and solution and the verification result.
+6. **Cherry-pick onto the target branch.** In the main checkout, `git cherry-pick <sha>` with the hash from `git -C <path> rev-parse HEAD`. On a conflict, `git cherry-pick --abort` and stop and report — never resolve it by guessing. Then `git worktree remove <path>`.
+7. **Report and ask.** Give the commit hash on the target branch, then ask which candidate is next — back to Phase 3 — or stop.
 
-Never push, and never amend or squash an earlier candidate's commit.
+Each candidate is exactly one commit on the target branch. Never push, and never amend or squash an earlier candidate's commit.

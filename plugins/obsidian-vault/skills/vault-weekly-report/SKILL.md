@@ -6,13 +6,20 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 
 # Weekly Report Creation
 
-Read this week's daily reports, produce a weekly report grouped by project, store it in `Weekly/`, then archive the daily notes. Folder layout, the archive model, frontmatter, link, language, date, and script rules live in [CONVENTIONS.md](../vault-conventions/CONVENTIONS.md).
+Read this week's daily reports — and any earlier week still unreported — produce a weekly report grouped by project, store it in `Weekly/`, then archive the daily notes. Folder layout, the archive model, frontmatter, link, language, date, and script rules live in [CONVENTIONS.md](../vault-conventions/CONVENTIONS.md).
 
 ## Steps
 
-### 1. Locate this week's daily reports
+### 1. Locate this week's daily reports — and any week left behind
 
-Get the week's bounds and label deterministically: `python "<vault-conventions>/scripts/iso_week.py"` (CONVENTIONS → Deterministic checks) returns the ISO week label and every date Monday→today. Find the daily notes for those dates (CONVENTIONS → Folder roles). If fewer than two exist, tell the user and ask whether to proceed.
+Get the week's bounds and label deterministically: `python "<vault-conventions>/scripts/iso_week.py" --vault VAULT --daily-dir DAILY` (CONVENTIONS → Deterministic checks), where `DAILY` is the vault-relative daily folder (CONVENTIONS → Folder roles; omit `--daily-dir` to use the vault's configured daily-notes folder). It returns the ISO week label, every date Monday→today, and `unreported` — earlier weeks whose daily notes are still in the daily folder.
+
+**Never skip a week silently.** Daily notes leave the daily folder only when their week's report archives them, so every `unreported` entry is a week that was missed. Before the current week, list each one to the user, oldest first, and offer:
+
+- `report_exists: false` → build that week's report: run steps 2–5 for it, with its `label`, `iso_year`, and `iso_week`, from exactly its `notes`.
+- `report_exists: true` → the report was written but its dailies were never archived. Don't rebuild it; check the report's `## Sources`, and offer step 5 for those notes.
+
+Then find the current week's daily notes for the returned `dates`. If fewer than two exist, tell the user and ask whether to proceed.
 
 ### 2. Read everything first
 

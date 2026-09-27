@@ -26,13 +26,14 @@ import json
 import re
 from collections.abc import Iterator
 from dataclasses import dataclass, field
+from datetime import date
 from pathlib import Path
 from urllib.parse import unquote
 
 WIKILINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
 EMBED_RE = re.compile(r"!\[\[([^\]]+)\]\]")
 ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?$")
-DAILY_NAME_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+DAILY_NAME_RE = re.compile(r"^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})$")
 WEEKLY_NAME_RE = re.compile(r"^W\d{1,2}$")
 KEBAB_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 FOOTNOTE_DEF_RE = re.compile(r"^\[\^([^\]]+)\]:", re.MULTILINE)
@@ -116,10 +117,11 @@ def load_note(path: Path) -> Note:
 # Vocabulary — how this vault names and files its notes
 # ---------------------------------------------------------------------------
 
+# Named groups let `daily_date` read the date back out of a matched filename.
 _DAILY_FORMAT_TOKENS = (
-    ("YYYY", r"\d{4}"), ("YY", r"\d{2}"),
-    ("MM", r"\d{2}"), ("M", r"\d{1,2}"),
-    ("DD", r"\d{2}"), ("D", r"\d{1,2}"),
+    ("YYYY", r"(?P<year>\d{4})"), ("YY", r"(?P<yy>\d{2})"),
+    ("MM", r"(?P<month>\d{2})"), ("M", r"(?P<month>\d{1,2})"),
+    ("DD", r"(?P<day>\d{2})"), ("D", r"(?P<day>\d{1,2})"),
 )
 
 
@@ -129,21 +131,38 @@ def _daily_name_regex(fmt: str) -> re.Pattern[str]:
     Only the date tokens a daily-note filename can carry are translated
     (YYYY/YY/MM/M/DD/D); moment `[literal]` brackets are dropped and every other
     character is matched literally. A format with sub-path segments
-    (`YYYY/YYYY-MM-DD`) contributes only its basename to the name pattern.
+    (`YYYY/YYYY-MM-DD`) contributes only its basename to the name pattern. A
+    token that repeats (`MMMM`) is captured once; later copies match unnamed.
     """
     name_fmt = fmt.replace("[", "").replace("]", "").rsplit("/", 1)[-1]
     pattern = ""
+    captured: set[str] = set()
     i = 0
     while i < len(name_fmt):
         for token, rx in _DAILY_FORMAT_TOKENS:
             if name_fmt.startswith(token, i):
-                pattern += rx
+                group = rx[4:rx.index(">")]
+                pattern += rx if group not in captured else f"(?:{rx[rx.index('>') + 1:]}"
+                captured.add(group)
                 i += len(token)
                 break
         else:
             pattern += re.escape(name_fmt[i])
             i += 1
     return re.compile(f"^{pattern}$")
+
+
+def daily_date(stem: str, daily_re: re.Pattern[str]) -> date | None:
+    """The date a daily-note filename encodes, or None if it is not a daily note."""
+    m = daily_re.match(stem)
+    if not m:
+        return None
+    groups = m.groupdict()
+    year = groups.get("year") or (groups.get("yy") and f"20{groups['yy']}")
+    try:
+        return date(int(year), int(groups["month"]), int(groups["day"]))
+    except (KeyError, TypeError, ValueError):
+        return None
 
 
 @dataclass(frozen=True)

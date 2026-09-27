@@ -44,7 +44,7 @@ Invoke them from the plugin root, pointing `--vault` at the vault folder:
 
 | Script | Purpose | Invocation |
 |---|---|---|
-| `iso_week.py` | ISO-8601 Monday-anchored week label and the week's dates | `python "<vault-conventions>/scripts/iso_week.py" [--date YYYY-MM-DD]` |
+| `iso_week.py` | ISO-8601 Monday-anchored week label and the week's dates; with `--vault`, the earlier weeks whose dailies are still unreported | `python "<vault-conventions>/scripts/iso_week.py" [--date YYYY-MM-DD] [--vault VAULT [--daily-dir DIR]]` |
 | `year_sweep.py` | Plan (or `--apply`) the Weekly→Archive year sweep | `python "<vault-conventions>/scripts/year_sweep.py" --vault VAULT [--apply]` |
 | `check_links.py` | Broken wikilinks, and `--orphans` | `python "<vault-conventions>/scripts/check_links.py" --vault VAULT [--orphans]` |
 | `validate_frontmatter.py` | Schema violations per note | `python "<vault-conventions>/scripts/validate_frontmatter.py" --vault VAULT` |

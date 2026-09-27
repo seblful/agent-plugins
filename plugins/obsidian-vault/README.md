@@ -44,7 +44,7 @@ Every routine is a skill that can be requested by name. Claude Code also exposes
 
 The deterministic helpers in [`scripts/`](skills/vault-conventions/scripts) (stdlib-only Python, JSON output) back the routines' repeatable checks:
 
-- **`iso_week.py`** — ISO-8601 Monday-anchored week label and the week's dates.
+- **`iso_week.py`** — ISO-8601 Monday-anchored week label and the week's dates; with `--vault`, the earlier weeks whose daily notes were never reported.
 - **`year_sweep.py`** — plan or `--apply` the Weekly→Archive year sweep.
 - **`check_links.py`** — broken wikilinks, and `--orphans`.
 - **`validate_frontmatter.py`** — schema violations per note.
