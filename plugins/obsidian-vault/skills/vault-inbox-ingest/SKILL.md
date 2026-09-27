@@ -1,6 +1,6 @@
 ---
 name: vault-inbox-ingest
-description: Empty the Inbox — merge each raw capture into the right destination note (or create one), relocate its images into the destination's attachments, wire the result into the relevant MOC, then delete the consumed capture.
+description: "Empty the Inbox — merge each raw capture into the right destination note (or create one), relocate its images into the destination's attachments, wire the result into the relevant MOC, then delete the consumed capture."
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ---
 

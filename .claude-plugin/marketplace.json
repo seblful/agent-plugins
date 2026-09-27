@@ -1,7 +1,7 @@
 {
-  "name": "seblful-claude-plugins",
-  "description": "Curated Claude Code plugins grouped by what they act on — code in one language, any codebase, your notes, your projects, and the conversation itself.",
-  "version": "0.15.0",
+  "name": "agent-plugins",
+  "description": "Curated coding assistant workflows for code, notes, projects, and conversations, packaged as Claude Code plugins and Agent Skills.",
+  "version": "0.15.2",
   "owner": {
     "name": "Aliaksei Chymba",
     "email": "alesha.chimba@gmail.com"
@@ -14,7 +14,7 @@
     },
     {
       "name": "code",
-      "description": "Language-agnostic tools for working on a codebase that already exists — reviewing a change, diagnosing a hard bug, sweeping implementations for defects, deepening shallow interfaces, condensing documentation into short, focused docs, and re-syncing a project with the template it came from. Every routine audits before it touches anything, and each process command pairs with the reference skill that defines its vocabulary.",
+      "description": "Language-agnostic tools for working on a codebase that already exists — reviewing a change, diagnosing a hard bug, sweeping implementations for defects, deepening shallow interfaces, condensing documentation into short, focused docs, and re-syncing a project with the template it came from. Every routine audits before it touches anything, and each workflow skill pairs with the reference skill that defines its vocabulary.",
       "source": "./plugins/code"
     },
     {
@@ -24,12 +24,12 @@
     },
     {
       "name": "lenses",
-      "description": "Tools that change how you and Claude work rather than what the code says — a high-level map of an unfamiliar area, an ultra-compressed terse mode, a one-question-at-a-time plan interview, and a stateful multi-session teaching workspace.",
+      "description": "Tools that change how you and your coding assistant work rather than what the code says — a high-level map of an unfamiliar area, an ultra-compressed terse mode, a one-question-at-a-time plan interview, and a stateful multi-session teaching workspace.",
       "source": "./plugins/lenses"
     },
     {
       "name": "meta",
-      "description": "Tools that act across all your projects and on your Claude setup rather than inside one codebase — capturing bugs, features, tasks, and ideas from any session into a central backlog repo you configure.",
+      "description": "Tools that act across all your projects rather than inside one codebase — capturing bugs, features, tasks, and ideas from any session into a central backlog repo you configure.",
       "source": "./plugins/meta"
     }
   ]

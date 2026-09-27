@@ -18,7 +18,7 @@ Structural moves the CLI doesn't cover (archiving notes, relocating attachments,
 
 ## Routines
 
-Lighter, everyday operations are **skills** (auto-trigger on natural language); periodic whole-vault audits are **commands** (invoke deliberately); the mechanical file-level cleanup runs as an **agent** (a subagent with its own context, delegated to on request).
+Every routine is a skill that can be requested by name. Claude Code also exposes plugin skills as namespaced slash commands. The mechanical cleanup additionally has a Claude agent entry point for delegation.
 
 ### Skills
 
@@ -30,15 +30,15 @@ Lighter, everyday operations are **skills** (auto-trigger on natural language); 
 - **vault-note-rewrite** — Refactor and expand informal or fragmented notes into a source-of-truth reference note: audit and plan first, then on approval rewrite.
 - **vault-moc-create** — Build a Map of Content (MOC) for a domain — or restructure one — grouping its notes into sections of wikilinks. The canonical MOC routine the authoring and inbox skills defer to.
 
-### Commands
+### Whole-vault audits
 
-- **/vault-accuracy-review** — Verify every claim in every note (excluding Logs and the archive) and stamp each with a `reviewed` date.
-- **/vault-structural-scan** — Fix broken wikilinks, misplaced files, frontmatter errors, stale MOCs, plus dead weight (stubs, orphans, duplicates, empty notes).
-- **/vault-wikilink-sprint** — Add inline prose wikilinks between conceptually related notes, starting at the most-referenced hub notes.
+- **vault-accuracy-review** — Verify every claim in every note (excluding Logs and the archive) and stamp each with a `reviewed` date.
+- **vault-structural-scan** — Fix broken wikilinks, misplaced files, frontmatter errors, stale MOCs, plus dead weight (stubs, orphans, duplicates, empty notes).
+- **vault-wikilink-sprint** — Add inline prose wikilinks between conceptually related notes, starting at the most-referenced hub notes.
 
 ### Agent
 
-- **vault-cleanup** — Mechanical file-level hygiene, run as a subagent: rename image attachments to the naming convention and rewrite their links, convert stray markdown links to wikilinks, report orphan/broken attachments, and prune empty folders. The file-level counterpart to `/vault-structural-scan`; it orchestrates the attachment/link/folder scripts, planning before every apply and flagging deletions rather than making them.
+- **vault-cleanup** — Mechanical file-level hygiene: rename image attachments to the naming convention and rewrite their links, convert stray markdown links to wikilinks, report orphan/broken attachments, and prune empty folders. The file-level counterpart to `vault-structural-scan`; it orchestrates the attachment/link/folder scripts, planning before every apply and flagging deletions rather than making them. Claude Code can run it as a subagent.
 
 ## Scripts
 

@@ -1,6 +1,6 @@
 ---
 name: python-notebooks
-description: Apply when creating, editing, running, reviewing, or cleaning up Jupyter notebooks — any .ipynb work, including exploratory data analysis, ML experiments, data-driven reports, and teaching material. Enforces the reproducibility contract (Restart & Run All passes top-to-bottom), hidden-state discipline, declared dependencies instead of in-cell installs, promotion of stable code into modules, restraint in figures and prose, and jupytext pairing for version control. Trigger whenever a notebook is created or modified, fails on rerun or on someone else's machine, has kernel or environment issues, or is converted to or from a script. Not for the Python modules a notebook imports (python-code); skip for explicitly throwaway scratch.
+description: "Apply when creating, editing, running, reviewing, or cleaning up Jupyter notebooks — any .ipynb work, including exploratory data analysis, ML experiments, data-driven reports, and teaching material. Enforces the reproducibility contract (Restart & Run All passes top-to-bottom), hidden-state discipline, declared dependencies instead of in-cell installs, promotion of stable code into modules, restraint in figures and prose, and jupytext pairing for version control. Trigger whenever a notebook is created or modified, fails on rerun or on someone else's machine, has kernel or environment issues, or is converted to or from a script. Not for the Python modules a notebook imports (python-code); skip for explicitly throwaway scratch."
 ---
 
 # Jupyter Notebooks

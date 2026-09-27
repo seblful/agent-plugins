@@ -1,6 +1,6 @@
 ---
 name: vault-weekly-report
-description: Create a weekly report note by synthesizing this week's daily reports — grouped by project, stored in a Weekly/ folder next to the daily reports, then archive the daily notes.
+description: "Create a weekly report note by synthesizing this week's daily reports — grouped by project, stored in a Weekly/ folder next to the daily reports, then archive the daily notes."
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ---
 

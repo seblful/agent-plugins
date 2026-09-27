@@ -1,6 +1,6 @@
 ---
 name: python-code
-description: The Python layer for code that will outlive a quick script — how the general principles are spelled in Python (types, data modeling, boundaries, errors, resources, async, tests) and the traps easy to miss in it. Use when writing, changing, or reviewing Python modules, classes, type annotations, data models, configuration or input parsing, CLIs, or pytest tests. Not for notebooks (python-notebooks), language-agnostic defects (code-smells), or interface and module shape (codebase-design).
+description: "The Python layer for code that will outlive a quick script — how the general principles are spelled in Python (types, data modeling, boundaries, errors, resources, async, tests) and the traps easy to miss in it. Use when writing, changing, or reviewing Python modules, classes, type annotations, data models, configuration or input parsing, CLIs, or pytest tests. Not for notebooks (python-notebooks), language-agnostic defects (code-smells), or interface and module shape (codebase-design)."
 ---
 
 # Python Code

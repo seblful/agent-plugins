@@ -1,6 +1,6 @@
 ---
 name: vault-daily-format
-description: Format and normalize today's daily report — fix frontmatter, make tasks atomic, make completed items self-explanatory, and convert bare URLs to titled links. Never changes substance or language.
+description: "Format and normalize today's daily report — fix frontmatter, make tasks atomic, make completed items self-explanatory, and convert bare URLs to titled links. Never changes substance or language."
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ---
 

@@ -1,13 +1,13 @@
 {
   "name": "lenses",
-  "version": "0.3.1",
-  "description": "Tools that change how you and Claude work rather than what the code says — a high-level map of an unfamiliar area, an ultra-compressed terse mode, a one-question-at-a-time plan interview, and a stateful multi-session teaching workspace.",
+  "version": "0.3.3",
+  "description": "Tools that change how you and your coding assistant work rather than what the code says — a high-level map of an unfamiliar area, an ultra-compressed terse mode, a one-question-at-a-time plan interview, and a stateful multi-session teaching workspace.",
   "author": {
     "name": "Aliaksei Chymba",
     "email": "alesha.chimba@gmail.com"
   },
-  "homepage": "https://github.com/seblful/seblful-claude-plugins",
-  "repository": "https://github.com/seblful/seblful-claude-plugins",
+  "homepage": "https://github.com/seblful/agent-plugins",
+  "repository": "https://github.com/seblful/agent-plugins",
   "license": "MIT",
   "keywords": ["lenses", "zoom-out", "caveman", "communication", "perspective", "code-navigation", "grill", "planning", "design-review", "teach", "learning", "education"]
 }

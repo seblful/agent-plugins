@@ -1,13 +1,13 @@
 {
   "name": "meta",
-  "version": "0.3.1",
-  "description": "Tools that act across all your projects and on your Claude setup rather than inside one codebase — capturing bugs, features, tasks, and ideas from any session into a central backlog repo you configure.",
+  "version": "0.3.3",
+  "description": "Tools that act across all your projects rather than inside one codebase — capturing bugs, features, tasks, and ideas from any session into a central backlog repo you configure.",
   "author": {
     "name": "Aliaksei Chymba",
     "email": "alesha.chimba@gmail.com"
   },
-  "homepage": "https://github.com/seblful/seblful-claude-plugins",
-  "repository": "https://github.com/seblful/seblful-claude-plugins",
+  "homepage": "https://github.com/seblful/agent-plugins",
+  "repository": "https://github.com/seblful/agent-plugins",
   "license": "MIT",
   "keywords": ["meta", "system", "cross-project", "workflow", "github", "issues", "gh-cli", "backlog", "capture"]
 }

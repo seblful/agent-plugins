@@ -1,6 +1,6 @@
 ---
 name: vault-note-create
-description: Author a new durable source-of-truth reference note on a subject — plan the scope and table of contents first, then on approval write a deep, modern note into the vault. Use when the user asks to create or write a reference, concept, or knowledge note on a topic.
+description: "Author a new durable source-of-truth reference note on a subject — plan the scope and table of contents first, then on approval write a deep, modern note into the vault. Use when the user asks to create or write a reference, concept, or knowledge note on a topic."
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep, WebSearch, WebFetch
 ---
 

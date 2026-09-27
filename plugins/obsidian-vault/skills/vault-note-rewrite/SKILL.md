@@ -1,6 +1,6 @@
 ---
 name: vault-note-rewrite
-description: Refactor and expand informal or fragmented notes into a durable source-of-truth reference note — audit and plan the changes first, then on approval rewrite into a deep, modern, well-structured note. Use when the user asks to rewrite, refactor, clean up, restructure, or expand an existing note or pasted notes.
+description: "Refactor and expand informal or fragmented notes into a durable source-of-truth reference note — audit and plan the changes first, then on approval rewrite into a deep, modern, well-structured note. Use when the user asks to rewrite, refactor, clean up, restructure, or expand an existing note or pasted notes."
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep, WebSearch, WebFetch
 ---
 

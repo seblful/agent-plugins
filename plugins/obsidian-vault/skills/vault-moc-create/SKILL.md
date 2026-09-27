@@ -1,6 +1,6 @@
 ---
 name: vault-moc-create
-description: Build a Map of Content (MOC) — a navigational index note for a domain — or restructure an existing one, grouping the domain's notes into sections of wikilinks and wiring it into the vault. Use when the user asks to create, build, or reorganize a MOC, index, or map note, or when another routine needs a hub for a cluster of notes.
+description: "Build a Map of Content (MOC) — a navigational index note for a domain — or restructure an existing one, grouping the domain's notes into sections of wikilinks and wiring it into the vault. Use when the user asks to create, build, or reorganize a MOC, index, or map note, or when another routine needs a hub for a cluster of notes."
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: diagnosing-bugs
-description: Feedback-loop-first diagnosis for hard bugs and performance regressions, in any language or stack — build a red-capable repro, minimise it, test ranked falsifiable hypotheses, fix behind a regression test, clean up. Use when the user says "diagnose" or "debug this", or reports something broken, throwing, failing, flaky, or slow. Not for a sweep of code that works (/code-sweep).
+description: "Feedback-loop-first diagnosis for hard bugs and performance regressions, in any language or stack — build a red-capable repro, minimise it, test ranked falsifiable hypotheses, fix behind a regression test, clean up. Use when the user says \"diagnose\" or \"debug this\", or reports something broken, throwing, failing, flaky, or slow. Not for a sweep of code that works (/code-sweep)."
 ---
 
 # Diagnosing Bugs

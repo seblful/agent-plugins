@@ -1,6 +1,6 @@
 ---
 name: vault-weekly-harvest
-description: Extract project-relevant knowledge from unprocessed weekly reports and merge it into the right project notes — no back-links, no archiving, just clean knowledge transfer.
+description: "Extract project-relevant knowledge from unprocessed weekly reports and merge it into the right project notes — no back-links, no archiving, just clean knowledge transfer."
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ---
 

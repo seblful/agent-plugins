@@ -1,13 +1,13 @@
 {
   "name": "code",
-  "version": "0.10.7",
-  "description": "Language-agnostic tools for working on a codebase that already exists — reviewing a change, diagnosing a hard bug, sweeping implementations for defects, deepening shallow interfaces, condensing documentation into short, focused docs, and re-syncing a project with the template it came from. Every routine audits before it touches anything, and each process command pairs with the reference skill that defines its vocabulary.",
+  "version": "0.10.9",
+  "description": "Language-agnostic tools for working on a codebase that already exists — reviewing a change, diagnosing a hard bug, sweeping implementations for defects, deepening shallow interfaces, condensing documentation into short, focused docs, and re-syncing a project with the template it came from. Every routine audits before it touches anything, and each workflow skill pairs with the reference skill that defines its vocabulary.",
   "author": {
     "name": "Aliaksei Chymba",
     "email": "alesha.chimba@gmail.com"
   },
-  "homepage": "https://github.com/seblful/seblful-claude-plugins",
-  "repository": "https://github.com/seblful/seblful-claude-plugins",
+  "homepage": "https://github.com/seblful/agent-plugins",
+  "repository": "https://github.com/seblful/agent-plugins",
   "license": "MIT",
   "keywords": ["code-review", "code-sweep", "refactor-interfaces", "debugging", "bug-diagnosis", "feedback-loop", "regression-test", "performance", "refactoring", "code-smells", "technical-debt", "bad-practices", "architecture", "seams", "deepening", "codebase-design", "deep-modules", "documentation", "docs-sweep", "writing-docs", "readme", "concise-docs", "copier", "template", "scaffolding", "project-baseline", "merge-conflicts"]
 }

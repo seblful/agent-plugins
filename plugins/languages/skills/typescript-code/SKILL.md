@@ -1,6 +1,6 @@
 ---
 name: typescript-code
-description: The TypeScript layer for code that will outlive a quick script — how the general principles are spelled in TypeScript (compiler strictness, types that narrow, boundary parsing, errors, promises, tests) and the traps easy to miss in it. Use when writing, changing, or reviewing TypeScript modules, types, tsconfig, input parsing, async code, or tests. Not for language-agnostic defects (code-smells), interface and module shape (codebase-design), or framework-specific UI practice.
+description: "The TypeScript layer for code that will outlive a quick script — how the general principles are spelled in TypeScript (compiler strictness, types that narrow, boundary parsing, errors, promises, tests) and the traps easy to miss in it. Use when writing, changing, or reviewing TypeScript modules, types, tsconfig, input parsing, async code, or tests. Not for language-agnostic defects (code-smells), interface and module shape (codebase-design), or framework-specific UI practice."
 ---
 
 # TypeScript Code
