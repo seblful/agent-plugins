@@ -1,6 +1,6 @@
 ---
 name: python-notebooks
-description: "Apply when creating, editing, running, reviewing, or cleaning up Jupyter notebooks — any .ipynb work, including exploratory data analysis, ML experiments, data-driven reports, and teaching material. Enforces the reproducibility contract (Restart & Run All passes top-to-bottom), hidden-state discipline, declared dependencies instead of in-cell installs, promotion of stable code into modules, restraint in figures and prose, and jupytext pairing for version control. Trigger whenever a notebook is created or modified, fails on rerun or on someone else's machine, has kernel or environment issues, or is converted to or from a script. Not for the Python modules a notebook imports (python-code); skip for explicitly throwaway scratch."
+description: "Reproducible Jupyter notebooks — Restart & Run All as the contract, hidden-state discipline, declared dependencies, promotion to modules, restraint in figures, jupytext pairing. Use when creating, editing, running, reviewing, or cleaning up any .ipynb (EDA, experiments, reports, teaching), or when a notebook fails on rerun, has kernel or environment issues, or is converted to or from a script. Not for the modules a notebook imports (python-code) or explicitly throwaway scratch."
 ---
 
 # Jupyter Notebooks
@@ -9,7 +9,11 @@ A notebook's value is its narrative; its danger is hidden state. One contract go
 
 **Restart kernel → Run All must succeed top-to-bottom and reproduce what the prose claims.**
 
-A notebook that works only in a secret cell order is a broken build that renders green. Verify it headless before calling any notebook work done. The commands assume `uv`, this plugin's default; in a project on conda, poetry, or plain pip, keep its manager and translate — what matters is that dependencies live in a file, never in a cell.
+A notebook that works only in a secret cell order is a broken build that renders green. Verify it headless before calling any notebook work done. The commands assume `uv`, this plugin's default; in a project on conda, poetry, or plain pip, keep its manager and translate — what matters is that dependencies live in a file, never in a cell. The tooling below is itself a dependency — declare it once, or every `uv run` here fails to spawn:
+
+```bash
+uv add --dev ipykernel nbclient jupytext nbmake   # kernel, `jupyter execute`, pairing, CI smoke run
+```
 
 ```bash
 uv run jupyter execute notebook.ipynb             # run, discard outputs
@@ -73,9 +77,21 @@ uv run jupytext --set-formats ipynb,py:percent notebook.ipynb   # pair once
 uv run jupytext --sync notebook.ipynb                           # after edits
 ```
 
-The paired `.py` is the reviewable source of truth in git; the `.ipynb` with its outputs stays local, gitignored. Edit `.ipynb` files with notebook-aware tooling (in Claude Code, `NotebookEdit`), never as raw JSON — the format corrupts easily.
+The paired `.py` is the reviewable source of truth in git; the `.ipynb` with its outputs stays local, gitignored. **A fresh clone or CI has only the `.py`** — rebuild the notebooks before running anything that needs one:
 
-Notebooks that must stay green get a CI smoke run: `uv run pytest --nbmake notebooks/`. It proves the narrative still executes; logic is tested after promotion, never inside a notebook.
+```bash
+uv run jupytext --sync notebooks/*.py   # writes the missing .ipynb from each paired .py
+```
+
+Edit `.ipynb` files with notebook-aware tooling (in Claude Code, `NotebookEdit`), never as raw JSON — the format corrupts easily. Where no notebook tool exists (Codex, OpenCode), edit the paired `.py` instead and run `jupytext --sync` on it.
+
+Notebooks that must stay green get a CI smoke run — rebuild first, or nbmake finds no `.ipynb`, collects nothing, and pytest exits 5:
+
+```bash
+uv run jupytext --sync notebooks/*.py && uv run pytest --nbmake notebooks/
+```
+
+It proves the narrative still executes; logic is tested after promotion, never inside a notebook.
 
 ## Not a finding
 

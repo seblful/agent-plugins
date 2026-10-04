@@ -1,6 +1,6 @@
 {
   "name": "languages",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Per-language practice for Python and TypeScript — how the general principles are spelled in each language (types, boundaries, errors, async, tests), the traps easy to miss in it, and reproducible Jupyter notebooks. Opinionated defaults for a greenfield project; a project's own stack always outranks them.",
   "author": {
     "name": "Aliaksei Chymba",
@@ -9,5 +9,6 @@
   "homepage": "https://github.com/seblful/agent-plugins",
   "repository": "https://github.com/seblful/agent-plugins",
   "license": "MIT",
+  "dependencies": ["code"],
   "keywords": ["python", "typescript", "type-hints", "strict-types", "testing", "pytest", "vitest", "uv", "ruff", "tsc", "jupyter", "notebooks"]
 }

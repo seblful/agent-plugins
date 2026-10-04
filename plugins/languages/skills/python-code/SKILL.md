@@ -5,7 +5,7 @@ description: "The Python layer for code that will outlive a quick script — how
 
 # Python Code
 
-How the principles of `code-smells` and `codebase-design` are written in Python, plus the traps particular to it. What holds in every language lives there; this file holds only what is Python.
+How the principles of `code-smells` and `codebase-design` are written in Python, plus the traps particular to it. What holds in every language lives there; this file holds only what is Python. Both ship in the `code` plugin; if they are not available, say so rather than treating this file as the whole review.
 
 **The project's existing choices outrank every default here** — its package manager, libraries, layout, and `requires-python`. A codebase half one stack and half another is worse than either. Propose a migration; never perform one as a side effect.
 
@@ -17,11 +17,12 @@ Write this way without commentary; name a rule only when asked why, or when devi
 | --- | --- |
 | Environments and dependencies | `uv`, every dependency declared in `pyproject.toml` |
 | Lint and format | `ruff` — owns style; never hand-enforce what it checks |
-| Type check | `ty` in strict mode, as a CI gate |
+| Type check | `ty`, every rule at error — `[tool.ty.rules]` `all = "error"` in `pyproject.toml` (ty has no "strict" switch) — as a CI gate |
 | Tests | `pytest`, `hypothesis` for properties |
 | Input validation, settings | `pydantic`, `pydantic-settings` |
 | Logging | `structlog` — events named in `snake_case` past tense, context as fields |
 | CLI | `typer` |
+| HTTP | `httpx` — `Client`, or `AsyncClient` inside `async def`, one per process lifetime, closed by `with` / `async with` |
 | Layout | `src/<package>/` with `py.typed`; tests outside the package |
 
 ## Principles, in Python
@@ -50,7 +51,8 @@ Code that reads correct and is not.
 - **Late-binding closure** — a lambda built in a loop sees the variable's last value. Bind it as a default argument or with `functools.partial`.
 - **`assert` as validation** — stripped under `python -O`. Raise.
 - **Naive time** — `datetime.utcnow()` is naive and deprecated; `datetime.now(timezone.utc)`.
-- **Blocking the loop** — sync I/O, `time.sleep`, or a sync HTTP client inside `async def`.
+- **Blocking the loop** — sync I/O, `time.sleep`, or a sync HTTP client (`requests`, `httpx.Client`) inside `async def`.
+- **HTTP client per call** — `httpx.get(…)` or a fresh `Client` per request builds and tears down a connection pool every time: no keep-alive, a new TLS handshake per call. One client, passed in, closed once.
 - **`__eq__` without `__hash__`** — defining equality makes instances unhashable.
 - **`@cache` on a method** — keeps every `self` alive for the life of the process.
 - **Decorator without `functools.wraps`** — loses the wrapped function's name, docstring, and signature.
@@ -69,6 +71,16 @@ Tests pin behaviour through the public interface; a refactor that keeps behaviou
 - **`hypothesis` for pure code** — parsers, serializers, anything with a round-trip.
 - **Expected errors via `pytest.raises(…, match=…)`**, never a `try/except` in the test.
 - **Markers declared under `--strict-markers`**; slow and integration tests behind them so the default run stays fast.
+
+## Before calling it done
+
+Run the project's own gate if it has one (CI workflow, pre-commit, task runner); on the default stack:
+
+```bash
+uv run ruff check && uv run ruff format --check && uv run ty check && uv run pytest
+```
+
+Done means every command exits 0. A failure you did not cause is reported, not hidden.
 
 ## Not a finding
 

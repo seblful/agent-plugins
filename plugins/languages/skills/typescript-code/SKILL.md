@@ -5,7 +5,7 @@ description: "The TypeScript layer for code that will outlive a quick script —
 
 # TypeScript Code
 
-How the principles of `code-smells` and `codebase-design` are written in TypeScript, plus the traps particular to it. What holds in every language lives there; this file holds only what is TypeScript.
+How the principles of `code-smells` and `codebase-design` are written in TypeScript, plus the traps particular to it. What holds in every language lives there; this file holds only what is TypeScript. Both ship in the `code` plugin; if they are not available, say so rather than treating this file as the whole review.
 
 **The project's existing choices outrank every default here** — its package manager, runtime, module system, libraries, and compiler settings. A codebase half one stack and half another is worse than either. Propose a migration; never perform one as a side effect.
 
@@ -49,6 +49,8 @@ Code that reads correct and is not.
 - **Unbound method** — `obj.method` passed as a callback loses `this`. Wrap it in an arrow function, or `bind`.
 - **Every number is a float** — money in integer minor units or a decimal type, `bigint` past 2⁵³.
 - **`Date` is mutable and local-time** — pass UTC instants or ISO strings; format only at the edge.
+- **`types: []` from `tsc --init`** — no `@types` package loads on its own, so `process` and `Buffer` fail to resolve (TS2591). Add `"types": ["node"]` with `@types/node` installed; don't delete the line and pull in every `@types` package again.
+- **Options TypeScript 7 removed** — `baseUrl`, `moduleResolution` `node`/`node10`/`classic`, `esModuleInterop: false`, `target: "es5"`, `outFile`, and `amd`/`umd`/`system` modules were deprecated in 6.0 and are hard errors in 7.0. `paths` resolve relative to the tsconfig without `baseUrl`; resolve with `nodenext` or `bundler`.
 
 ## Tests
 
@@ -61,6 +63,16 @@ Tests pin behaviour through the public interface; a refactor that keeps behaviou
 - **Fake timers over real waits** — `vi.useFakeTimers`, never a `sleep` in a test.
 - **`fast-check` for pure code** — parsers, serializers, anything with a round-trip.
 - **Type tests for public generic types** — `expectTypeOf`; a type that widens to `any` passes every runtime test.
+
+## Before calling it done
+
+Run the project's own gate if it has one (CI workflow, `package.json` scripts); on the default stack, through the project's package manager (`npx`, `pnpm exec`, `bunx`):
+
+```bash
+npx tsc --noEmit && npx eslint . && npx prettier --check . && npx vitest run
+```
+
+Done means every command exits 0. A failure you did not cause is reported, not hidden.
 
 ## Not a finding
 
