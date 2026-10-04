@@ -1,6 +1,6 @@
 ---
 name: code-smells
-description: "Language-agnostic catalog of implementation smells with their fixes and, equally important, the false positives to suppress — correctness and robustness defects, bad practices and non-idiomatic constructs, duplication, dead weight, and complexity. Use when /code-sweep runs, when reviewing code for defects or bad practice, or when the user asks what to look for in a file. Covers implementations only — interface, seam, and module-shape smells belong to codebase-design; markdown docs to writing-docs."
+description: "Language-agnostic catalog of implementation smells with fixes and the false positives to suppress — correctness and robustness defects, bad practice and non-idiomatic code, duplication, dead weight, complexity. Use when code-sweep or code-reviewer runs, when reviewing code for defects or bad practice, or when the user asks what to look for in a file. Not for interface, seam, or module-shape smells (codebase-design), markdown docs (writing-docs), or one language's traps (python-code, typescript-code)."
 ---
 
 # Code Smells
@@ -11,7 +11,12 @@ Three lenses for finding what is wrong with code that already works. Each lists 
 
 **The suppression lists matter as much as the signals.** A sweep that reports 200 nitpicks is ignored wholesale; the false-positive rate decides whether the next one is trusted.
 
-A finding must be **real** (you read the code), **consequential** (you can name what goes wrong), **not already handled** (you checked the callers), and **not a lateral move** (clearly better, not differently shaped).
+A finding must pass four tests:
+
+- **Real** — you read the code and the smell is there.
+- **Consequential** — you can name what goes wrong: an input that misbehaves, a change that will break, a reader who will be misled.
+- **Not already handled** — you checked the callers; a missing absence check is not a finding when every caller guarantees presence.
+- **Not a lateral move** — clearly better, not differently shaped. If you would accept a reviewer reverting it, drop it.
 
 ---
 
@@ -75,7 +80,7 @@ Code that works but misleads, fights the language, or makes the next change hard
 - **Reinvented standard library** — hand-rolled grouping, retry, path handling, date parsing, or merging the language or framework already provides. → Use the provided one.
 - **Unidiomatic iteration** — index bookkeeping where only the items are used; a manual accumulator where the language's collection operations read better. → The idiomatic form, only when genuinely clearer.
 - **Ad-hoc output instead of logging** — printing to the console in library or service code; unstructured logs in a project that logs structurally. → The project's logger, the right level, context as fields.
-- **String-built structured output** — queries, markup, serialized data, shell commands, or paths assembled by concatenation. → Parameterized queries, serializers, path APIs, argument lists. *(If injection-prone, also a security handoff.)*
+- **String-built structured output** — queries, markup, serialized data, shell commands, or paths assembled by concatenation. → Parameterized queries, serializers, path APIs, argument lists. *(If injection-prone, it is a security finding.)*
 - **Magic value** — an unexplained literal in a decision, especially repeated. → A named constant where the meaning lives. Obvious values need no name.
 - **Configuration read mid-logic** — environment or global config reached deep inside a function, hiding a dependency and blocking tests. → Read at the edge, pass it in.
 

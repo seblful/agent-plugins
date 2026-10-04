@@ -1,8 +1,9 @@
 ---
 name: update-from-template
-description: "Pull the latest Copier template changes into this project — run copier update, then resolve the conflicts by intent instead of leaving markers and .rej files behind, and prove the result with the project's own gates."
+description: "Pull the latest Copier template changes into a project — preview the template diff, run copier update, resolve conflict markers and .rej hunks by intent, and prove the result with the project's own gates. Use when the user asks to update, re-sync, or adopt a Copier template, or mentions .copier-answers.yml. Not for CLAUDE.md upkeep (claude-md-management) or dependency upgrades with no template involved."
 argument-hint: "[template ref to move to — e.g. v0.7.7 or HEAD; omit for the latest tag]"
-allowed-tools: Bash, Read, Write, Edit, Grep, Glob
+allowed-tools: Read, Grep, Glob, Bash(git status *), Bash(git log *), Bash(git diff *), Bash(git ls-remote *), Bash(git rev-parse *)
+disable-model-invocation: true
 ---
 
 # Update From Template
@@ -17,30 +18,44 @@ Bring a project back in line with the [Copier](https://copier.readthedocs.io/) t
 
 - **A way to run Copier.** `uvx --with jinja2-time copier` needs nothing installed globally and is what every command below uses; `pipx run copier` or a global install work the same way. This is only how Copier itself is launched — it says nothing about what language the *project* is written in. Whichever you use, include the template's own Jinja extensions: `jinja2-time` is not optional for a template that stamps the current year into a LICENSE, and a template declaring others fails the same way.
 - **A git repo with a clean working tree.** Copier refuses to update a dirty destination, and without a clean state there is no abort point.
-- Run everything from the project root.
+- Run everything from the project root. `<scratch>` below is a directory outside the project — the session scratchpad if the host has one, else one from `mktemp -d`.
 
-## Phase 0 — Find the link, then take a baseline
+## Phase 0 — Find the link, preview, then stop
 
 **The link.** Look for the answers file at the project root: `.copier-answers.yml`, or `.copier-answers.*.yml` when the project tracks more than one template. Two keys matter:
 
 | Key | What it is |
 | --- | --- |
-| `_src_path` | the template — a `gh:owner/name` shorthand, or any git URL |
-| `_commit` | the template version the project last synced to |
+| `_src_path` | the template — a `gh:owner/name` or `gl:owner/name` shorthand, any git URL, or a local path |
+| `_commit` | the template version the project last synced to — a tag, or a `git describe` string such as `v0.7.6-3-g1a2b3c4`; git resolves either as is |
+
+**Not `.copier-answers.yml`** → pass `-a <answers file>` (`--answers-file`) to every `copier update` below; Copier reads only the default name otherwise.
 
 No answers file → **the project predates the template.** Go to Phase 5. Do not hand-write an answers file to force `copier update` — Copier's own docs say never to edit that file by hand, and the merge it produces is against a rendering the project never matched.
 
-**The target.** Resolve where you are going — `gh api repos/<owner>/<name>/tags --jq '.[].name'` for a `gh:` path, `git ls-remote --tags <url>` otherwise. Default is the newest tag; `the user's request` overrides. If `_commit` already equals the target, say so and stop.
+**The URL.** Expand a shorthand for git: `gh:owner/name` → `https://github.com/owner/name.git`, `gl:owner/name` → `https://gitlab.com/owner/name.git`. A git URL or local path is used as is.
 
-**The preview.** Show what the template changed *before* touching anything:
+**The target.** `the user's request` names it, or take the newest release tag:
 
 ```
-gh api repos/<owner>/<name>/compare/<_commit>...<target> --jq '.files[] | "\(.status) \(.filename)"'
+git ls-remote --tags --refs --sort=-v:refname <url>
 ```
 
-Group it by what it touches — dependencies, tooling config, package source, tests, assistant instructions — and list the commit subjects. This is the user's chance to say "not now".
+The first tag without a pre-release suffix (`-rc1`, `a1`, `.dev0`) is the target — Copier skips pre-releases by default too. If `_commit` already equals the target, say so and stop.
 
-**The baseline.** Run the project's gates *now*, before the update, and record each as green or red. **Discover them; do not assume a stack.** Read the project's build config and its assistant instructions (`CLAUDE.md` / `AGENTS.md`), and take the commands they actually name. Five roles matter, in this order — skip any the project doesn't have:
+**The preview.** A partial clone — full history, file contents fetched only when a diff needs them; a shallow clone would lack `_commit`:
+
+```
+git clone --quiet --filter=blob:none --no-checkout <url> <scratch>/template
+git -C <scratch>/template log --oneline <_commit>..<target>
+git -C <scratch>/template diff --name-status <_commit> <target>
+```
+
+Group the files by what they touch — dependencies, tooling config, package source, tests, assistant instructions — and list the commit subjects.
+
+**Then stop and ask whether to update to `<target>`.** Run nothing below before a yes — this is the user's chance to say "not now".
+
+**The baseline.** After the go-ahead, run the project's gates before the update, and record each as green or red. **Discover them; do not assume a stack.** Read the project's build config and its assistant instructions (`CLAUDE.md` / `AGENTS.md`), and take the commands they actually name. Five roles matter, in this order — skip any the project doesn't have:
 
 | Gate | Where to find the command |
 | --- | --- |
@@ -64,18 +79,20 @@ git rev-parse HEAD          # record it — this is your abort point
 Then:
 
 ```
-uvx --with jinja2-time copier update --trust --defaults --conflict inline
+uvx --with jinja2-time copier update --trust --defaults --skip-tasks --conflict inline --vcs-ref=<target>
 ```
 
 | Flag | Why |
 | --- | --- |
-| `--trust` | the template runs Jinja extensions and `_tasks`; Copier refuses without it |
+| `--trust` | the template runs Jinja extensions and migrations; Copier refuses without it |
 | `--defaults` | reuse every stored answer and take the template's default for questions added since — the non-interactive form |
+| `--skip-tasks` | the template's `_tasks` — formatters and linters such as `ruff format .`, `mdformat .` — cannot parse a file with conflict markers. Skip them here; Phase 3 runs them |
 | `--conflict inline` | git-style markers in place, both sides visible where the code is. `--conflict rej` instead collects rejected hunks in `.rej` files and leaves each file syntactically valid — switch to it if the markers are too tangled to work in |
-| `--vcs-ref=<ref>` | only when `the user's request` names one; otherwise Copier takes the newest tag, not `HEAD` |
+| `--vcs-ref=<target>` | always — the exact ref the preview showed. Without it Copier picks its own newest tag by PEP 440, which may not be what the user approved |
+| `-a <answers file>` | only when the answers file is not `.copier-answers.yml` |
 | `--data key=value` | change a stored answer in the same run — a new runtime version, a different license. No interactive session needed |
 
-**Expect the template's own tasks to fail, and do not re-run.** A template whose `_tasks` format or lint the project — `ruff format .`, `ruff check --fix .`, `mdformat .` — runs them *after* the merge, and none of those can parse a file with conflict markers in it. Copier reports the task failure; the merged files are already on disk. Carry on to Phase 2. Re-running from a now-dirty tree only fails differently.
+**Record the skipped tasks now:** `git -C <scratch>/template show <target>:copier.yml` (or `copier.yaml`), and note every `_tasks` entry, rendered with the project's answers.
 
 **Abort** at any point: `git reset --hard <recorded sha>` then `git clean -fd`.
 
@@ -115,7 +132,7 @@ When you are done, delete every `.rej` file you applied and re-run both searches
 
 ## Phase 3 — Verify
 
-Run the formatters the template's `_tasks` could not (whatever the template invokes — e.g. `uv run ruff format .`, `uv run mdformat .`), regenerate any lockfile you deleted in Phase 2, then re-run the Phase 0 gates in order.
+Run the `_tasks` you recorded in Phase 1, in their order (e.g. `uv run ruff format .`, `uv run mdformat .`), regenerate any lockfile you deleted in Phase 2, then re-run the Phase 0 gates in order.
 
 - **Red where the baseline was green → the update caused it.** Fix it.
 - **Red where the baseline was red → inherited.** Confirm you did not make it worse, and do not fold an unrelated pre-existing fix into this change.
@@ -156,8 +173,10 @@ Show the filled table and **confirm before generating**: a wrong package name re
 **2. Render a baseline into a scratch directory**, never over the project:
 
 ```
-uvx --with jinja2-time copier copy --trust --defaults --data-file <scratch>/answers.yml <template> <scratch>/baseline
+uvx --with jinja2-time copier copy --trust --defaults --vcs-ref=<target> --data-file <scratch>/answers.yml <template> <scratch>/baseline
 ```
+
+`<target>` is resolved as in Phase 0.
 
 The template's `_tasks` run in there — typically a `git init`, a dependency install, a format pass. Harmless, but it takes a minute.
 

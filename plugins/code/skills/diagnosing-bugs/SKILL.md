@@ -5,7 +5,7 @@ description: "Feedback-loop-first diagnosis for hard bugs and performance regres
 
 # Diagnosing Bugs
 
-A discipline for hard bugs. Skip a phase only with a stated reason. Read the project's context docs and decision records for the area first, where they exist.
+A discipline for hard bugs. Skip a phase only with a stated reason. Read the project's context docs and decision records for the area first, where they exist. **Do not commit unless asked.**
 
 ## Phase 1 — Build a feedback loop
 
@@ -22,7 +22,10 @@ A discipline for hard bugs. Skip a phase only with a stated reason. Read the pro
 7. **Property or fuzz loop** — for "sometimes wrong", run many random inputs and catch the failure.
 8. **Bisection harness** — the bug appeared between two known states (commit, dataset, version): automate "set up state, check" so bisection runs unattended.
 9. **Differential loop** — the same input through old vs new version, or two configs, diffing outputs.
-10. **Human in the loop** — last resort. If a person must act, drive them with `scripts/hitl-loop.template.sh` so the loop stays structured and their answers come back to you.
+10. **Human in the loop** — last resort. If a person must act, keep the loop structured with [`scripts/hitl-loop.template.sh`](scripts/hitl-loop.template.sh):
+    - **Copy it** to a scratch directory (the session scratchpad, else `mktemp -d`) and edit the steps there — never the original.
+    - **The user runs it, not you** — your shell has no terminal to prompt in, and the script exits at the first prompt. In Claude Code, ask them to run `! bash <copy>`. Without that, ask each step in chat, one at a time.
+    - **Read the answers** from `hitl-results.env` beside the copy, or the path passed as its first argument: one `KEY=VALUE` per capture under a `# run <timestamp>` line, appended each run.
 
 ### Tighten it
 
@@ -77,6 +80,6 @@ With a seam: turn the minimal repro into a failing test → watch it fail → fi
 - [ ] The regression test passes, or the missing seam is recorded
 - [ ] Every `[DEBUG-…]` line is removed
 - [ ] Throwaway harnesses are deleted or clearly parked
-- [ ] The confirmed hypothesis is stated in the commit or PR message
+- [ ] The confirmed hypothesis is stated in the report — and in the commit or PR message, if the user asks for one
 
 **Then ask what would have prevented it** — after the fix, when you know most. No good test seam, tangled callers, hidden coupling → `/refactor-interfaces`, with specifics. A defect pattern likely to recur — a swallowed error, an unguarded absence, a fix that missed a copy → `/code-sweep`, with the pattern to sweep for.

@@ -1,8 +1,8 @@
 ---
 name: docs-sweep
-description: "Condense a project's documentation — cut what does not matter, split docs that do two jobs, merge or delete what does not earn its place, and tighten what stays. Plans every doc first, then applies only what you approve."
+description: "Condense a project's markdown docs — cut what does not matter, split docs that do two jobs, merge or delete what does not earn its place, and tighten what stays. Plans every doc first, then applies only what you approve. Use when the user says docs are too long, sprawling, duplicated, or stale, or asks to clean up a README or docs folder. Not for CLAUDE.md, AGENTS.md, or other agent instructions (claude-md-management), or docstrings and comments (code-sweep)."
 argument-hint: "[doc or subtree to narrow the sweep to — omit to sweep every doc in the project]"
-allowed-tools: Read, Glob, Grep, Bash, Edit, Write, Agent, Skill
+allowed-tools: Read, Glob, Grep, Agent, Skill, Bash(git status *), Bash(git log *), Bash(git ls-files *), Bash(wc *)
 ---
 
 # Docs Sweep
@@ -23,7 +23,7 @@ For each doc write one line: **its reader and the question it answers.** A doc y
 
 ## Phase 1 — Give each doc a verdict
 
-Read every doc in full yourself. Past ~15 docs, fan out to `Explore` agents **by group of docs, never by concern** — duplication across docs is invisible to an agent that sees one file.
+Read every doc in full yourself. Past ~15 docs, fan out to general-purpose subagents when the host has them, **by group of docs, never by concern** — duplication across docs is invisible to an agent that sees one file. A subagent sees only its brief: paste in the inventory lines for its group and the `writing-docs` Laws, Cut, and Do not cut sections verbatim.
 
 | Verdict | Means |
 | --- | --- |

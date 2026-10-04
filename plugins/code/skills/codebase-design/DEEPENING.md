@@ -15,7 +15,7 @@ Classify a candidate's dependencies first — **the category decides how the dee
 
 ## Seam discipline
 
-- **One adapter is a hypothetical seam; two is a real one.** Add a port only when at least two adapters are justified — typically production and test. One adapter is just indirection.
+- **A port needs two adapters** (the two-adapter principle in [SKILL.md](SKILL.md)) — typically production and test. One adapter is just indirection.
 - **Keep internal seams internal.** Don't expose them through the interface because tests use them.
 
 ## Testing: replace, don't layer

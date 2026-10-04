@@ -1,6 +1,6 @@
 ---
 name: writing-docs
-description: "How to make documentation short, focused, and worth reading — what to cut, when to split, merge, or delete a doc, how to shape what stays, and what never to cut. Use when writing, editing, or condensing any README, guide, or other markdown doc in a codebase, when /docs-sweep runs, or when the user asks whether a doc is too long or any good. Not for docstrings and in-code comments (code-smells) or agent-facing instructions like CLAUDE.md and AGENTS.md."
+description: "How to make documentation short, focused, and worth reading — what to cut, when to split, merge, or delete a doc, how to shape what stays, and what never to cut. Use when writing, editing, or condensing any README, guide, or other markdown doc in a codebase, when /docs-sweep runs, or when the user asks whether a doc is too long or any good. Not for docstrings and in-code comments (code-smells) or agent instructions like CLAUDE.md and AGENTS.md (claude-md-management)."
 ---
 
 # Writing Docs

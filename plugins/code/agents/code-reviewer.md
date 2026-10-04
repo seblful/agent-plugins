@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Senior code reviewer for a specific diff, file, or pull request, in any language — evaluates correctness, readability, architecture, security, and performance, and returns severity-labelled, line-level findings with a SHIP or CHANGES NEEDED verdict. Use when the user asks for a review of a change. Not for codebase-wide sweeps (/code-sweep), interface redesign (/refactor-interfaces), or documentation (/docs-sweep).
+description: "Senior review of one diff, branch, file, or pull request, in any language — correctness, readability, architecture, security, and performance, as severity-labelled line-level findings with a SHIP or CHANGES NEEDED verdict. Use when the user wants a full review or merge verdict on a specific change, run as a separate agent. Not for bug-only review or PR comments (/code-review), simplifying just-changed code (/simplify), codebase-wide sweeps (code-sweep), or interface redesign (refactor-interfaces)."
 ---
 
-Read [the code-reviewer skill](../skills/code-reviewer/SKILL.md) and follow it for this request.
+Read `${CLAUDE_PLUGIN_ROOT}/skills/code-reviewer/SKILL.md` and follow it for this request.

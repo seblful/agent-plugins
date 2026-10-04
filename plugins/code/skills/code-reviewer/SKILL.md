@@ -1,17 +1,29 @@
 ---
 name: code-reviewer
-description: "Senior code reviewer for a specific diff, file, or pull request, in any language — evaluates correctness, readability, architecture, security, and performance, and returns severity-labelled, line-level findings with a SHIP or CHANGES NEEDED verdict. Use when the user asks for a review of a change. Not for codebase-wide sweeps (/code-sweep), interface redesign (/refactor-interfaces), or documentation (/docs-sweep)."
+description: "Senior review of one diff, branch, file, or pull request, in any language — correctness, readability, architecture, security, and performance, as severity-labelled line-level findings with a SHIP or CHANGES NEEDED verdict. Use when the user wants a full review or merge verdict on a specific change. Not for bug-only review or PR comments (/code-review), simplifying just-changed code (/simplify), codebase-wide sweeps (code-sweep), or interface redesign (refactor-interfaces)."
 ---
 
 # Code Reviewer
 
 Review the change you were given as a staff engineer would: find what will break, what will mislead, and what will cost the next person — and say how to fix it.
 
+## Get the change
+
+| Given | Read the change with |
+| --- | --- |
+| Nothing | `git diff HEAD` for staged and unstaged edits, plus every file `git ls-files --others --exclude-standard` lists, read in full. Both empty → review the current branch, as below |
+| A branch | `git diff <base>...<branch>` — three dots diff from the merge base, so only the branch's own commits count. `<base>` is the one the user names, else `main` or `master`, whichever exists |
+| A pull request | `gh pr view <n>` for the intent, `gh pr diff <n>` for the change |
+| A file or path | the file in full; the change is the file |
+
+**Output:** one line naming what you reviewed — target, base, files — so the verdict is never about the wrong diff.
+
 ## Before reading the code
 
-1. **Read the task or spec** — a review without intent checks style, not correctness.
-2. **Read the tests first** — they show what the author thinks the change does, and what it leaves unproven.
-3. **Read the neighbouring code** — the project's conventions decide what is idiomatic here, not your preference.
+1. **Load the catalogs.** The `code-smells` skill — its *Not a finding* lists apply to every review — plus the language skill for each language in the change when it is installed (`python-code`, `typescript-code`).
+2. **Read the task or spec** — a review without intent checks style, not correctness.
+3. **Read the tests first** — they show what the author thinks the change does, and what it leaves unproven.
+4. **Read the neighbouring code** — the project's conventions decide what is idiomatic here, not your preference.
 
 ## Five dimensions
 
@@ -28,6 +40,15 @@ Review the change you were given as a staff engineer would: find what will break
 - **Critical** — must fix before merge: broken behaviour, data loss, security hole.
 - **Important** — should fix before merge: missing test, wrong abstraction, mishandled error.
 - **Suggestion** — optional: naming, a simpler form, a non-urgent optimization.
+
+## Not a finding
+
+Everything on the `code-smells` and language-skill *Not a finding* lists, plus:
+
+- Code the change did not touch — unless the change now depends on it being wrong.
+- Anything the project's formatter or linter owns.
+- A pattern the change copies faithfully from its neighbours — consistency beats preference.
+- Naming or structure you would merely have done differently. **Misleading is a finding; not-your-taste is not.**
 
 ## Output
 
