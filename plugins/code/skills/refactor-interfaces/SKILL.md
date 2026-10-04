@@ -6,110 +6,55 @@ allowed-tools: Read, Glob, Grep, Bash, Agent, Edit, Write, Skill, Artifact
 
 # Refactor Interfaces
 
-Find architectural friction and propose **deepening opportunities** — refactors that turn shallow modules into deep ones, for testability and navigability.
+Turn shallow modules into deep ones. **Load the `codebase-design` skill** and use its vocabulary exactly; name modules in the codebase's own domain terms.
 
-## Scope: interfaces and seams, not implementations
-
-> **Would the fix change what a caller must know?**
-> **Yes** → it belongs here. **No** → hand it to `/code-sweep`.
-
-Splitting a god object, deleting a wrapper callers go through, moving a seam, and reshaping a signature are in scope. A swallowed error, deep nesting, dead code, or a bad local name leaves the caller's view unchanged — close the report with one line pointing at `/code-sweep`; no cards, no fixes.
-
-The outputs differ on purpose: `/code-sweep` lists defects evidenced by before/after **code** and ends in batched fixes; this workflow produces a **diagram-led HTML report** and ends in designed refactors, **one commit per candidate**.
-
-**Load the `codebase-design` skill** and use its terms exactly — **module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality** — never "component", "service", "API", or "boundary". Name modules in the codebase's own domain terms — "the order intake module", not "the FooBarHandler".
+**Scope test: would the fix change what a caller must know?** Yes → in scope. No → it belongs to `/code-sweep`; mention it in one line, never as a candidate.
 
 ## Phase 1 — Explore
 
-Walk the codebase with `Explore` agents. Follow friction, not a checklist:
+Walk the codebase with `Explore` agents, following friction:
 
-- Where does one concept take bouncing between many small modules?
-- Which modules are **shallow** — interface nearly as complex as the implementation?
-- Where were pure functions extracted for testability while the bugs hide in how they are called?
-- Where do coupled modules leak across their seams?
-- What is untested, or hard to test through its current interface?
+- one concept bouncing between many small modules
+- shallow modules — interface nearly as complex as the implementation
+- pure functions extracted for testability while the bugs hide in how they are called
+- coupled modules leaking across their seams
+- code untested, or hard to test through its current interface
 
-Apply the **deletion test** to every suspect: does deleting it concentrate complexity, or just move it? "Concentrates" is the signal.
+Keep only suspects that pass the **deletion test**.
 
-**Output:** up to five candidates, each with its files, dependency category, and strength.
+**Output:** up to five candidates, each with its files, dependency category ([DEEPENING.md](../codebase-design/DEEPENING.md)), and strength.
 
-## Phase 2 — Publish the report
+## Phase 2 — Report
 
-**The page design is decided.** Copy [`REPORT-TEMPLATE.html`](../codebase-design/REPORT-TEMPLATE.html) from the sibling `codebase-design` skill to the session scratchpad as `refactor-interfaces-audit.html` and fill its slots:
+Copy [`REPORT-TEMPLATE.html`](../codebase-design/REPORT-TEMPLATE.html) to the session scratchpad as `refactor-interfaces-audit.html`, title it `Interface Audit — <repo>`, and fill its slots by the rules in its header comment. **The template owns the look** — never restyle it, and load no design skill.
 
-> **Fill slots, never restyle.** Don't touch `<style>`, add a class, a font, a colour, or a section. Add a candidate by duplicating the `<article class="candidate">` block whole.
-> **One diagram form.** Every diagram is a mermaid `flowchart LR` in a before/after pair, carrying the template's `classDef` block unchanged — that block makes the legend true.
-> **Fixed identity.** Title `Interface Audit — <repo>`, `icon` `report`, filename `refactor-interfaces-audit.html` — so a re-review lands on the same URL.
+Each card: a title naming the deepening, a strength badge, a dependency tag (`in-process`, `local-substitutable`, `ports & adapters`, `mock`), files, a before/after diagram, a one-sentence problem, a one-sentence solution, and wins of six words or fewer in glossary terms — never "cleaner".
 
-**Publish it as an Artifact** — the filled file as it is, with `icon` `report` and a one-sentence description naming the repo and candidate count. The template *is* the predefined design: load no design skill and write no page of your own. **The template owns the look.** Only if the assistant cannot publish an Artifact, give the user the local HTML file path.
+**The diagrams carry the weight** — if one needs a paragraph, redraw it. Candidates differ in graph shape, never styling: `module`, `deep` (what the after collapses into), `faded` (now internal), `leak` (reached past its seam). No other diagram kinds.
 
-### What fills the slots
+Publish it as an Artifact with `icon` `report` and a one-sentence description naming the repo and candidate count; if you cannot, give the local path. Then ask once, proposing no interfaces yet: "Which of these should I implement? (e.g. `1, 3`) — your pick is the go-ahead; I design and implement them without asking again."
 
-Header: repo, date, candidate count. **Rank `Strong`, then `Worth exploring`, then `Speculative`**, numbered in that order. **Five candidates maximum** — a sixth means the cut is not sharp enough.
+## Phase 3 — Design
 
-Each card:
+**The pick is the approval** — never ask the user to confirm a design. For each chosen candidate, in implementation order (one that reshapes a module another touches goes first), post one block:
 
-- **Title** — names the deepening: "Collapse the order intake pipeline"
-- **Strength badge**, plus a dependency tag: `in-process`, `local-substitutable`, `ports & adapters`, `mock`
-- **Files** — the modules involved
-- **Before / After diagram** — the centrepiece
-- **Problem** — one sentence
-- **Solution** — one sentence
-- **Wins** — bullets of six words or fewer, in glossary terms: "locality: bugs land in one module", "delete 4 shallow wrappers". Never "cleaner".
-
-**The diagrams carry the weight.** If one needs a paragraph, redraw it. Candidates differ in **graph shape, never styling** — four node classes are the whole vocabulary:
-
-| Class | Means |
-| --- | --- |
-| `:::module` | an ordinary module |
-| `:::deep` | the deep module the "after" collapses into |
-| `:::faded` | now internal — no longer a caller's problem |
-| `:::leak` | a module callers reach past its seam to touch |
-
-A dashed link (`-.->`) is a seam; leakage is a red link set with `linkStyle`. Keep the template's `theme: neutral` frontmatter — Mermaid takes its palette from its own theme. **No other diagram kinds** — sequence diagrams, hand-drawn SVG, layer stacks — each would make this report a different document from the last.
-
-**Do not propose interfaces yet.** Ask once: "Which of these should I implement? (e.g. `1, 3`) — your pick is the go-ahead; I design and implement them without asking again."
-
-## Phase 3 — Design every chosen candidate
-
-**The pick is the approval.** Choosing candidates in Phase 2 authorises their design and implementation — never ask the user to confirm a design. For every chosen candidate, in implementation order, post one block:
-
-- **Interface** — the new entry points, parameters, invariants, and error modes
-- **Behind the seam** — what moves inside and stops being a caller's problem
+- **Interface** — entry points, parameters, invariants, error modes
+- **Behind the seam** — what stops being a caller's problem
 - **Callers** — what changes at each call site
 - **Tests** — which move to the new interface, which are deleted
 
-Propose one design per candidate — the strongest you see, not a menu of alternatives.
+One design per candidate — the strongest, not a menu.
 
-Order candidates so each builds on the last: one that reshapes a module another candidate touches goes first.
+**Output:** the designs, posted as a record the user can interrupt; start Phase 4 in the same turn.
 
-**Output:** the designs, in order. Post them and start Phase 4 in the same turn — they are a record the user can interrupt, not a gate.
+## Phase 4 — Implement
 
-## Phase 4 — Implement and commit every chosen candidate
+**This workflow commits** — an exception to the house default: each candidate is one reviewable, revertable commit. Implement in the main session, not subagents, through the list without pausing between candidates.
 
-**This command commits** — a deliberate exception to "do not commit unless asked": each candidate is one reviewable, revertable unit, so it lands as one commit the moment it is done.
+**Setup.** Require a clean tree (`git status --porcelain` empty), else stop and ask. The current branch is the target. Create one worktree for the run — `git worktree add --detach <path> HEAD` with `<path>` in the scratchpad — install there if needed, and record the baseline of the project's test, type-check, lint, and build commands. Match `git log --oneline -10` for commit style.
 
-**You implement, not subagents.** Subagents stop at Phase 1. Work in the main session through the chosen list in order, without asking between candidates — the next starts only after the last is committed and picked onto the target branch.
+**Per candidate, in the worktree:** implement the design and update every caller, with no shim; move tests to the new interface by [replace, don't layer](../codebase-design/DEEPENING.md); re-run the baseline and fix any red the change caused; stage by path — deletions included, never `git add -A` — and commit with the card's problem, solution, and verification result in the body; `git cherry-pick <sha>` onto the target branch; report one line with the candidate and its hash.
 
-Before the first candidate:
+**Stop and ask only when** a red the change caused will not go green (leave it uncommitted in the worktree), a cherry-pick conflicts (`git cherry-pick --abort` — never resolve by guessing), or a design does not fit the code.
 
-- **Clean tree.** `git status --porcelain` must print nothing. Otherwise stop and ask — a candidate's commit holds only its own change.
-- **Target branch.** The branch checked out now; `git branch --show-current` names it. Every candidate lands there.
-- **One worktree for the run.** `git worktree add --detach <path> HEAD`, with `<path>` outside the repo (the session scratchpad) so it never shows as untracked. It is a fresh checkout: run the project's install step there once if the baseline needs one. Work only inside it.
-- **Baseline.** Find the verification commands by role — test, type-check, lint, build — and run them in the worktree. Record each as green or red.
-- **Commit style.** Read `git log --oneline -10` and match its subject convention.
-
-Per candidate, in the worktree:
-
-1. **Implement the design.** Update every caller; no compatibility shim unless asked.
-2. **Replace, don't layer.** Tests move to the new interface; delete the shallow-module tests they replace.
-3. **Verify.** Re-run the baseline. Red where it was green → fix it. **Never commit a red the change caused** — if it will not go green, stop the run and report, leaving the change uncommitted in the worktree for the user to inspect.
-4. **Commit.** Stage the candidate's files by path — deletions included, never `git add -A` — and commit: the subject names the deepening in the log's style; the body carries the card's problem and solution and the verification result.
-5. **Cherry-pick onto the target branch.** In the main checkout, `git cherry-pick <sha>` with the hash from `git -C <path> rev-parse HEAD`. On a conflict, `git cherry-pick --abort` and stop the run and report — never resolve it by guessing.
-6. **Say it landed** — one line: candidate, commit hash on the target branch — and go straight to the next.
-
-**Stop the run only for** a red the change caused, a cherry-pick conflict, or a design that turns out not to fit the code — then ask. Anything else, keep going.
-
-After the last candidate: `git worktree remove <path>`, then report every commit hash in order and the final verification result.
-
-Each candidate is exactly one commit on the target branch. Never push, and never amend or squash an earlier candidate's commit.
+**Finish:** `git worktree remove <path>`, then report every hash in order and the final verification result. Never push, amend, or squash.
