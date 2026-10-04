@@ -68,11 +68,11 @@ Each card:
 
 A dashed link (`-.->`) is a seam; leakage is a red link set with `linkStyle`. Keep the template's `theme: neutral` frontmatter — Mermaid takes its palette from its own theme. **No other diagram kinds** — sequence diagrams, hand-drawn SVG, layer stacks — each would make this report a different document from the last.
 
-**Do not propose interfaces yet.** Ask once: "Which of these should I implement? (e.g. `1, 3`)"
+**Do not propose interfaces yet.** Ask once: "Which of these should I implement? (e.g. `1, 3`) — your pick is the go-ahead; I design and implement them without asking again."
 
-## Phase 3 — Design every chosen candidate, approve once
+## Phase 3 — Design every chosen candidate
 
-**One message, one approval.** For every chosen candidate, in implementation order, give one block:
+**The pick is the approval.** Choosing candidates in Phase 2 authorises their design and implementation — never ask the user to confirm a design. For every chosen candidate, in implementation order, post one block:
 
 - **Interface** — the new entry points, parameters, invariants, and error modes
 - **Behind the seam** — what moves inside and stops being a caller's problem
@@ -83,13 +83,13 @@ Propose one design per candidate — the strongest you see, not a menu of altern
 
 Order candidates so each builds on the last: one that reshapes a module another candidate touches goes first.
 
-**Output:** the designs the user approved, in order, with any edits they asked for. **Implement nothing until the user approves.** A design the user rejects drops out; the rest proceed.
+**Output:** the designs, in order. Post them and start Phase 4 in the same turn — they are a record the user can interrupt, not a gate.
 
-## Phase 4 — Implement and commit every approved candidate
+## Phase 4 — Implement and commit every chosen candidate
 
 **This command commits** — a deliberate exception to "do not commit unless asked": each candidate is one reviewable, revertable unit, so it lands as one commit the moment it is done.
 
-**You implement, not subagents.** Subagents stop at Phase 1. Work in the main session through the approved list in order, without asking between candidates — the next starts only after the last is committed and picked onto the target branch.
+**You implement, not subagents.** Subagents stop at Phase 1. Work in the main session through the chosen list in order, without asking between candidates — the next starts only after the last is committed and picked onto the target branch.
 
 Before the first candidate:
 
@@ -101,7 +101,7 @@ Before the first candidate:
 
 Per candidate, in the worktree:
 
-1. **Implement the approved design.** Update every caller; no compatibility shim unless asked.
+1. **Implement the design.** Update every caller; no compatibility shim unless asked.
 2. **Replace, don't layer.** Tests move to the new interface; delete the shallow-module tests they replace.
 3. **Verify.** Re-run the baseline. Red where it was green → fix it. **Never commit a red the change caused** — if it will not go green, stop the run and report, leaving the change uncommitted in the worktree for the user to inspect.
 4. **Commit.** Stage the candidate's files by path — deletions included, never `git add -A` — and commit: the subject names the deepening in the log's style; the body carries the card's problem and solution and the verification result.
