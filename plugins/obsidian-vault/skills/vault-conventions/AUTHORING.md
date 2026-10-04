@@ -72,8 +72,9 @@ Bidirectionality is the goal (the `vault-wikilink-sprint` principle), done at au
 
 ## Interactive workflow
 
-These skills **never** emit the final note in one shot. They gate on the user:
+These skills **never** emit the final note in one shot. They gate on the user, per CONVENTIONS → Before changing anything:
 
+0. **Safety preflight** (CONVENTIONS → Before changing anything) — writing the note also edits existing notes to link it in.
 1. **Research and plan.** Resolve the audience and domain (Audience and domain), ground the subject (Research and grounding), and survey the graph (Connecting the note), then produce the plan your skill defines — audience, scope/audit fields, the one-note-or-cluster decision (Scoping), exclusions, tech choices, planned connections, and a full hierarchical `##`/`###`/`####` Table of Contents following the document shape above. Output only the plan.
 2. **Stop and ask.** End the planning turn with the skill's approval question and generate nothing further until the user answers.
 3. **Execute on approval.** Write the note(s) into the vault per CONVENTIONS (frontmatter, links, footnote citations, connections), following the approved Table of Contents.

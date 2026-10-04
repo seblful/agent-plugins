@@ -11,21 +11,33 @@ still classified correctly. The date- and link-valued field sets default to the
 CONVENTIONS schema but can be overridden for a vault with a different one.
 
 Checks: required fields present per note type; dates ISO `YYYY-MM-DD[THH:MM:SS]`;
-`tags` a lowercase kebab-case list; link-valued fields carry `[[wikilinks]]`.
+`tags` a lowercase kebab-case list (nested `area/sub-topic` tags allowed);
+link-valued fields carry `[[wikilinks]]`. Notes that are not valid UTF-8 are
+skipped and listed under `unreadable`; a UTF-8 BOM and CRLF endings are fine.
 
 Usage:
     python validate_frontmatter.py --vault PATH
         [--date-fields created,modified,reviewed] [--link-fields project,area,related]
 
-Output (JSON to stdout): {"issues": [{"file", "type", "problem"}]}
+Output (JSON to stdout):
+    {"issues": [{"file", "type", "problem"}], "unreadable": [{"file", "reason"}]}
 """
 
 import argparse
 from collections.abc import Iterable
 
-from _vault import (ISO_DATE_RE, KEBAB_RE, Note, add_vault_arg, classify,
-                    emit_json, iter_notes, require_vault_dir, scan_exclude,
-                    vocabulary)
+from _vault import (
+    ISO_DATE_RE,
+    KEBAB_RE,
+    Note,
+    add_vault_arg,
+    classify,
+    emit_json,
+    iter_notes,
+    require_vault_dir,
+    scan_exclude,
+    vocabulary,
+)
 
 REQUIRED: dict[str, set[str]] = {
     "general": {"tags", "created", "modified"},
@@ -36,8 +48,9 @@ DEFAULT_DATE_FIELDS = frozenset({"created", "modified", "reviewed"})
 DEFAULT_LINK_FIELDS = frozenset({"project", "area", "related"})
 
 
-def check_note(note: Note, note_type: str, date_fields: Iterable[str],
-               link_fields: Iterable[str]) -> list[str]:
+def check_note(
+    note: Note, note_type: str, date_fields: Iterable[str], link_fields: Iterable[str]
+) -> list[str]:
     if note_type == "archived":
         return []
     fm = note.frontmatter
@@ -78,10 +91,16 @@ def _csv(raw: str) -> set[str]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     add_vault_arg(parser)
-    parser.add_argument("--date-fields", default="",
-                        help="Override date-valued fields (comma-separated)")
-    parser.add_argument("--link-fields", default="",
-                        help="Override wikilink-valued fields (comma-separated)")
+    parser.add_argument(
+        "--date-fields",
+        default="",
+        help="Override date-valued fields (comma-separated)",
+    )
+    parser.add_argument(
+        "--link-fields",
+        default="",
+        help="Override wikilink-valued fields (comma-separated)",
+    )
     args = parser.parse_args()
 
     vault = require_vault_dir(args.vault)
@@ -90,12 +109,21 @@ def main() -> None:
     link_fields = _csv(args.link_fields) or DEFAULT_LINK_FIELDS
 
     issues: list[dict[str, str]] = []
-    for note in iter_notes(vault, include_archive=False, vocab=vocab,
-                           exclude=scan_exclude(vault)):
+    unreadable: list[dict[str, str]] = []
+    notes = iter_notes(
+        vault,
+        include_archive=False,
+        vocab=vocab,
+        exclude=scan_exclude(vault),
+        unreadable=unreadable,
+    )
+    for note in notes:
         note_type = classify(note.path, vault, vocab)
         for problem in check_note(note, note_type, date_fields, link_fields):
-            issues.append({"file": str(note.path), "type": note_type, "problem": problem})
-    emit_json({"issues": issues})
+            issues.append(
+                {"file": str(note.path), "type": note_type, "problem": problem}
+            )
+    emit_json({"issues": issues, "unreadable": unreadable})
 
 
 if __name__ == "__main__":

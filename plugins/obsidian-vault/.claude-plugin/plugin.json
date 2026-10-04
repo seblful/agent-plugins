@@ -1,6 +1,6 @@
 {
   "name": "obsidian-vault",
-  "version": "0.13.5",
+  "version": "0.13.6",
   "description": "Maintenance and authoring routines for Obsidian vaults — log formatting, inbox ingestion, knowledge harvesting, structural and accuracy audits, wikilink connectivity, file hygiene, maps of content, and deep reference notes. Every routine discovers the vault's own conventions before applying a default, and is backed by deterministic stdlib-only scripts.",
   "author": {
     "name": "Aliaksei Chymba",

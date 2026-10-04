@@ -1,7 +1,7 @@
 ---
 name: vault-note-create
-description: "Author a new durable source-of-truth reference note on a subject — plan the scope and table of contents first, then on approval write a deep, modern note into the vault. Use when the user asks to create or write a reference, concept, or knowledge note on a topic."
-allowed-tools: Bash, Read, Edit, Write, Glob, Grep, WebSearch, WebFetch
+description: "Author a new durable source-of-truth reference note in an Obsidian vault — plan the scope and table of contents first, then on approval write a deep, researched, cited note and link it in. Use when the user asks to create or write a reference, concept, or knowledge note on a topic. Not for a subject the vault already has a note on (vault-note-rewrite), a MOC or index (vault-moc-create), or quick captures (vault-inbox-ingest)."
+allowed-tools: Read, Glob, Grep, WebSearch, WebFetch
 ---
 
 # Create Reference Note
@@ -11,6 +11,10 @@ Turn a subject into the vault's authoritative reference note on it: plan before 
 ## Input
 
 The subject to document, plus any context the user gives (audience, desired depth, angle, constraints). If no subject is given, or it's too broad to scope into one note, ask before planning.
+
+## Step 0 — Safety preflight
+
+Run the preflight in [CONVENTIONS → Before changing anything](../vault-conventions/CONVENTIONS.md#before-changing-anything) — linking the new note in edits existing notes.
 
 ## Step 1 — Research and plan
 

@@ -1,7 +1,7 @@
 ---
 name: vault-note-rewrite
-description: "Refactor and expand informal or fragmented notes into a durable source-of-truth reference note — audit and plan the changes first, then on approval rewrite into a deep, modern, well-structured note. Use when the user asks to rewrite, refactor, clean up, restructure, or expand an existing note or pasted notes."
-allowed-tools: Bash, Read, Edit, Write, Glob, Grep, WebSearch, WebFetch
+description: "Rewrite informal or fragmented notes into a durable source-of-truth reference note in an Obsidian vault — audit and plan first, then on approval restructure, correct, and expand. Use when the user asks to rewrite, refactor, restructure, expand, or clean up the content of a specific note or pasted notes. Not for today's daily note (vault-daily-format), vault-wide structural fixes (vault-structural-scan), or file and link tidying (vault-cleanup)."
+allowed-tools: Read, Glob, Grep, WebSearch, WebFetch
 ---
 
 # Rewrite Into Reference Note
@@ -11,6 +11,10 @@ Refactor, correct, and expand fragmented notes into the vault's authoritative re
 ## Input
 
 The note(s) to rewrite — a vault note name/path, or pasted text. Read the source in full (and any notes it links) before planning. Never change the source's language (CONVENTIONS → Language and substance).
+
+## Step 0 — Safety preflight
+
+Run the preflight in [CONVENTIONS → Before changing anything](../vault-conventions/CONVENTIONS.md#before-changing-anything).
 
 ## Step 1 — Audit, research, and plan
 

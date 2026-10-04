@@ -1,24 +1,26 @@
 ---
 name: vault-weekly-harvest
-description: "Extract project-relevant knowledge from unprocessed weekly reports and merge it into the right project notes — no back-links, no archiving, just clean knowledge transfer."
-allowed-tools: Bash, Read, Edit, Write, Glob, Grep
+description: "Lift lasting project knowledge — decisions, technical findings, lessons, scope changes, risks — out of unharvested weekly reports in an Obsidian vault and, on approval, merge it into the right project notes and mark each report harvested. Use when the user asks to harvest, process, or extract knowledge from weekly reports. Not for writing the weekly report (vault-weekly-report) or filing Inbox captures (vault-inbox-ingest)."
+allowed-tools: Read, Glob, Grep
 ---
 
 # Weekly Harvest
 
 Read weekly reports that haven't been harvested, lift the project-relevant knowledge out of them, write it into the appropriate project notes, then mark each report processed. Do not add wikilinks back to the source reports. Do not archive or move anything except the year sweep at the end. Folder layout, frontmatter, link, language, note-creation, date, and script rules live in [CONVENTIONS.md](../vault-conventions/CONVENTIONS.md).
 
-## Steps
+## Phase 0 — Safety preflight
 
-### 1. Find unprocessed weekly reports
+Run the preflight in [CONVENTIONS → Before changing anything](../vault-conventions/CONVENTIONS.md#before-changing-anything).
 
-In the `Weekly/` folder (CONVENTIONS → Folder roles), a `W{nn}.md` report is **unprocessed** if its frontmatter lacks `harvested: true`. Read all unprocessed reports before writing anything.
+## Phase 1 — Find unprocessed weekly reports
 
-### 2. Map the vault's project structure
+In the `Weekly/` folder (CONVENTIONS → Folder roles), a `W{nn}.md` report is **unprocessed** if its frontmatter lacks `harvested: true`. Read all unprocessed reports before planning anything.
 
-Scan to find where project notes live; build a list of known projects and their note paths so you know where to write.
+## Phase 2 — Map the vault's project structure
 
-### 3. For each report, identify extractable knowledge
+Find where project notes live; build a list of known projects and their note paths so you know where to write.
+
+## Phase 3 — Plan the extraction
 
 Extract only items with lasting value — skip routine entries.
 
@@ -31,23 +33,29 @@ Extract only items with lasting value — skip routine entries.
 | Open questions or risks to track | Project note — Risks / Open Questions section |
 | Tasks discovered mid-work | Project note — Backlog or Next Steps section |
 
-### 4. Write to project notes
+**Output:** every item to extract, its source report, and its destination note and section; project notes to create; reports to mark harvested.
+
+## Phase 4 — Stop and ask
+
+Present the plan and ask: *"Write these items and mark the reports harvested? Reply 'Yes', or name what to change."* Change nothing until the user answers.
+
+## Phase 5 — Write to project notes
 
 1. Find the right project note; if none exists for a referenced project, create a minimal one (CONVENTIONS → Creating notes).
-2. Write each item into the section it belongs to per CONVENTIONS → Merging knowledge into a note (standalone fact, no reference to the source report, source's language, no duplication).
+2. Write each item into the section it belongs to per CONVENTIONS → Merging knowledge into a note (standalone fact, no reference to the source report, source's language, no duplication, `modified` bumped).
 3. Don't add wikilinks back to the weekly report.
 
-### 5. Mark each report processed
+## Phase 6 — Mark each report processed
 
 After harvesting a report, set `harvested: true` in its frontmatter so it isn't processed again.
 
-### 6. Year sweep
+## Phase 7 — Year sweep
 
-After step 5, run the year sweep on `Weekly/`: `python "<vault-conventions>/scripts/year_sweep.py" --vault VAULT --apply` (CONVENTIONS → Deterministic checks, Folder roles and the archive model). Everything swept is already `harvested: true`.
+Run the year sweep on `Weekly/`: `python "<vault-conventions>/scripts/year_sweep.py" --vault VAULT --apply` (CONVENTIONS → Deterministic checks, Folder roles and the archive model). Everything it sweeps is already `harvested: true`: the sweep holds back every report still `harvested: false` and lists it under `held`. A `held` report after Phase 6 is one you skipped — name it in the report.
 
-### 7. Report
+## Report
 
-List every piece of knowledge extracted, the source report it came from (for your own audit trail in chat), and the destination project note.
+Every piece of knowledge extracted, the source report it came from (for your own audit trail in chat), and the destination project note; reports archived and held by the sweep.
 
 ## Judgment
 

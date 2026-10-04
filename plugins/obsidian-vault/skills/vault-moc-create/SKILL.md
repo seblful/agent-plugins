@@ -1,7 +1,7 @@
 ---
 name: vault-moc-create
-description: "Build a Map of Content (MOC) — a navigational index note for a domain — or restructure an existing one, grouping the domain's notes into sections of wikilinks and wiring it into the vault. Use when the user asks to create, build, or reorganize a MOC, index, or map note, or when another routine needs a hub for a cluster of notes."
-allowed-tools: Bash, Read, Edit, Write, Glob, Grep
+description: "Build a Map of Content (MOC) — a navigational index note for a domain — or restructure an existing one, grouping the domain's notes into sections of wikilinks and wiring it into the vault. Use when the user asks to create, build, or reorganize a MOC, index, or map note, or when another routine needs a hub for a cluster of notes. Not for fixing broken or missing MOC entries (vault-structural-scan) or writing the notes it indexes (vault-note-create)."
+allowed-tools: Read, Glob, Grep
 ---
 
 # Create a MOC
@@ -16,9 +16,11 @@ Build the navigational index for a domain: gather its notes, group them into a r
 
 ## Steps
 
+0. **Safety preflight.** Run the preflight in [CONVENTIONS → Before changing anything](../vault-conventions/CONVENTIONS.md#before-changing-anything) — skipped when another routine's approved plan called this skill.
 1. **Define the domain.** Settle what the MOC covers — its boundary. Too broad fragments into sub-MOCs; too narrow isn't worth an index.
 2. **Gather members.** Search the vault for the domain's notes (CONVENTIONS → Accessing the vault). Link only notes that exist; resolve exact filenames (CONVENTIONS → Links) — never invent entries.
 3. **Group into sections.** Organize members into `##` sections by subtopic, ordered foundational → advanced (or by the vault's existing MOC style). Each entry is a `[[wikilink]]`; add a short annotation only where the title isn't self-explanatory.
+   **Output:** the plan — the MOC's name and path, its sections and entries, and the notes that will link to it. Ask *"Do you approve this MOC plan? Type 'Yes' to proceed."* and stop until the user answers (skipped when the calling routine's plan already approved it).
 4. **Write the note.** Name and place it per the vault's MOC convention (CONVENTIONS → MOCs; mirror existing MOCs — `X MOC`, a `moc` tag, etc.). Frontmatter and headings per CONVENTIONS, a one-line intro stating what the map covers, then the sections.
 5. **Connect it.** Link the new MOC from its parent/home MOC or index so it's reachable, and — for a cluster hub — add links from the member notes back to it (AUTHORING → Connecting the note). A MOC nothing links to is itself an orphan.
 6. **Verify.** Run `check_links.py --vault VAULT` (CONVENTIONS → Deterministic checks) so every entry and back-link resolves.

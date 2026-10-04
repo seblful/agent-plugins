@@ -1,34 +1,39 @@
 ---
 name: vault-structural-scan
-description: "Scan the whole vault for structural problems and dead weight — broken wikilinks, misplaced files, frontmatter errors, stale MOCs, plus stubs, orphans, duplicates, and empty notes — and fix them in-place."
-allowed-tools: Bash, Read, Edit, Write, Glob, Grep
+description: "Audit a whole Obsidian vault's note content for structural problems and dead weight — broken wikilinks, frontmatter errors, heading structure, misplaced files, stale MOCs, stubs, orphan notes, duplicates, empty notes — then fix what you approve. Use when the user asks to scan, audit, health-check, or tidy the vault's notes. Not for files and link syntax — attachments, markdown-to-wikilink, empty folders (vault-cleanup) — nor rewriting one note (vault-note-rewrite)."
+allowed-tools: Read, Glob, Grep
 ---
 
 # Structural Scan
 
-Catch structural problems and dead weight that accumulated since the last scan and fix them while they're still recent. Every note should be self-consistent, locatable, connected, and worth keeping — either it holds knowledge worth having or it's a useful navigation point. Fix what you safely can in-place; **never delete a note** — flag deletion candidates for the user. Scope: whole vault. The canonical schema, link rules, heading rules, MOC detection, folder/archive model, and deterministic scripts live in [CONVENTIONS.md](../vault-conventions/CONVENTIONS.md); this command validates notes *against* them.
+Catch structural problems and dead weight that accumulated since the last scan and fix them while they're still recent. Every note should be self-consistent, locatable, connected, and worth keeping — either it holds knowledge worth having or it's a useful navigation point. Scope: the whole vault except `Archive/` (frozen) and template folders (placeholders, not notes). The canonical schema, link rules, heading rules, MOC detection, folder/archive model, and deterministic scripts live in [CONVENTIONS.md](../vault-conventions/CONVENTIONS.md); this skill validates notes *against* them.
 
-This command owns the **editorial health of note content**. Mechanical, file-level hygiene — renaming attachments to convention, converting markdown links to wikilinks, orphan/broken *attachments*, empty *folders* — belongs to the `vault-cleanup` agent; flag such issues here rather than fixing them.
+This skill owns the **editorial health of note content**. Mechanical, file-level hygiene — renaming attachments to convention, converting markdown links to wikilinks, orphan/broken *attachments*, empty *folders* — belongs to `vault-cleanup`; flag such issues here rather than fixing them. **Never delete a note** — flag deletion candidates for the user.
 
-## Gather the deterministic signal first
+## Phase 0 — Safety preflight
 
-Run the scripts (CONVENTIONS → Deterministic checks) and use their JSON as the worklist; apply judgment to every flag before acting:
+Run the preflight in [CONVENTIONS → Before changing anything](../vault-conventions/CONVENTIONS.md#before-changing-anything).
+
+## Phase 1 — Gather the deterministic signal
+
+Run the scripts (CONVENTIONS → Deterministic checks) and use their JSON as the worklist; apply judgment to every flag:
 
 - `python "<vault-conventions>/scripts/validate_frontmatter.py" --vault VAULT` — schema violations.
-- `python "<vault-conventions>/scripts/check_links.py" --vault VAULT --orphans` — broken wikilinks and orphan notes.
+- `python "<vault-conventions>/scripts/check_links.py" --vault VAULT --orphans` — broken wikilinks, embeds, and heading links, plus orphan notes.
 
-The scripts find candidates mechanically; deciding what to do with each is the work below.
+**Output:** the raw worklist.
 
-## What to check
+## Phase 2 — Audit
+
+Work through every check below and record each finding with its proposed fix — or "flag" when the fix needs the user. Change nothing yet.
 
 ### Frontmatter
 
-From `validate_frontmatter.py`, plus your own read where the script can't judge intent. Validate against the note schema in CONVENTIONS → Frontmatter (general/reviewed/daily/weekly/project/archived). Then:
+From `validate_frontmatter.py`, plus your own read where the script can't judge intent. Validate against the note schema in CONVENTIONS → Frontmatter (general/reviewed/daily/weekly/project/archived):
 
-- Fill missing or empty required fields.
-- Ensure dates are `YYYY-MM-DD` and match the file's real ctime/mtime; correct mismatches.
-- Ensure link-valued fields are wikilinks (single-string for one value, YAML list for many), `tags` is a lowercase kebab-case list, and reserved keys (`aliases`, `cssclasses`, `tags`) are preserved.
-- Never rewrite frontmatter inside archived notes — they're frozen.
+- Missing or empty required fields → fill them. Fill a missing `created` from the file's first commit or creation date (CONVENTIONS → Frontmatter); **never overwrite an existing `created`**.
+- Dates not in `YYYY-MM-DD` → reformat, keeping the date.
+- Link-valued fields as wikilinks (single-string for one value, YAML list for many), `tags` a lowercase kebab-case list (nested `a/b` is valid), reserved keys (`aliases`, `cssclasses`, `tags`) preserved.
 
 ### Heading structure
 
@@ -39,46 +44,56 @@ Enforce CONVENTIONS → Headings: no body H1 (demote stray `#` to `##` or drop i
 From `check_links.py`:
 
 - `[[wikilinks]]` resolving to nothing (note renamed/moved) — fix if the target is obvious from context; flag if ambiguous.
-- Heading links `[[Note#Heading]]` whose target heading is gone — flag for review.
-- Image/file embeds pointing to deleted or moved attachments — flag for review.
+- `[[Note#Heading]]` links whose heading is gone — fix if the heading was clearly renamed; otherwise flag.
+- Embeds pointing to deleted or moved attachments — flag, and point at `vault-cleanup` (`--relink`) for the mechanical repair.
 
 ### Misplaced files
 
-- Understand the vault's folder structure and what each folder is meant to hold.
-- Identify notes that clearly don't match their folder's purpose.
-- Flag misplaced files for the user rather than moving them unilaterally.
+Learn the vault's folder structure and what each folder holds; flag notes that clearly don't match their folder's purpose, naming the folder they belong in. Don't move them in this skill.
 
 ### Dead weight
 
-Find notes that are neither knowledge worth having nor useful navigation points. Resolve what you can in-place; flag the rest — **never delete anything**.
+Find notes that are neither knowledge worth having nor useful navigation points.
 
-- **Stubs** (`#stub` or near-empty) — complete now, or leave a concrete plan and tag `#stub`; flag if pointless.
-- **Orphans** (from `check_links.py --orphans`, no incoming or outgoing links) — connect via a `[[wikilink]]` from a related note or MOC; flag if it has no place. Standalone task/plan/log notes are fine as orphans (see Judgment).
-- **Duplicates** (same topic, different notes) — consolidate into the canonical note, cross-link with one marked primary, flag the redundant copy.
-- **Empty notes** (title only) — populate or flag.
+- **Stubs** (`#stub` or near-empty) — propose completing them, or a concrete plan plus the `#stub` tag; flag if pointless.
+- **Orphans** (from `--orphans`: no incoming or outgoing links) — propose a `[[wikilink]]` from a related note or MOC; flag if the note has no place.
+- **Duplicates** (same topic, different notes) — propose consolidating into the canonical note and cross-linking with one marked primary; flag the redundant copy.
+- **Empty notes** (title only) — propose content, or flag.
 
 ### Stale MOCs
 
-Treat MOCs (detected by role — CONVENTIONS → MOCs) as structural assertions about the vault, and check them like links:
+Treat MOCs (detected by role — CONVENTIONS → MOCs) as structural assertions about the vault:
 
 - Entries pointing to renamed/moved/deleted notes — fix if the new target is obvious, flag if ambiguous.
 - Notes that clearly belong to a MOC's domain (same folder, tag cluster, topic) but are missing from it — add them under the appropriate section.
 - Empty MOC sections or duplicate entries — clean up.
 
-Out of scope here: deciding what a MOC *should* cover, restructuring its sections, or creating new MOCs — that's editorial work for `vault-moc-create`, not structural validation. Flag the need; don't build it here.
+Deciding what a MOC *should* cover, restructuring its sections, or creating a new MOC is editorial work for `vault-moc-create` — flag the need; don't build it here.
+
+**Output:** the findings — fixes proposed (file → change), flags (file → reason), and deletion candidates (file → reason).
+
+## Phase 3 — Stop and ask
+
+Present the findings and ask: *"Apply these fixes? Reply 'Yes', or name the ones to apply."* Change nothing until the user answers.
+
+## Phase 4 — Apply and verify
+
+Apply exactly the approved fixes, and bump `modified` on every note whose content you changed (CONVENTIONS → Frontmatter). Re-run both scripts and fix any breakage the edits introduced.
 
 ## Report
 
-- Files fixed (with what changed).
-- Files flagged for human review (with reason).
-- Broken links resolved vs. flagged.
-- Dead weight: stubs completed/planned, orphans connected, duplicates consolidated/cross-linked, empty notes populated — and everything flagged as a deletion candidate (with reason).
+Files fixed (with what changed); files flagged for review (with reason); broken links resolved vs. flagged; dead weight completed, connected, or consolidated; every deletion candidate (with reason).
 
 ## Judgment
 
 - A note with a few lines of real, accurate content is not a stub or a deletion candidate — short is fine, empty is not.
-- If a broken link's target is obvious from context, fix it; if ambiguous, flag rather than guess.
 - Don't restructure or delete notes that are merely different in style — only fix what's genuinely wrong.
 - When merging duplicates, keep the version that's more accurate, complete, or better formatted — not necessarily the older one.
-- Standalone task lists, plan notes, and log notes are fine as orphans; isolated concept or reference notes are a problem.
 - For MOCs: only mechanical upkeep (broken entries, obviously-missing notes). If a MOC's structure or scope seems wrong, flag it — don't redesign it.
+
+**Not a finding:**
+
+- standalone task lists, plan notes, and log notes with no links — fine as orphans; isolated concept or reference notes are the problem;
+- an existing `created` that disagrees with the file's dates — `created` is never overwritten;
+- a `modified` that differs from the file's modification time (CONVENTIONS → Frontmatter);
+- anything inside `Archive/` or a template folder.

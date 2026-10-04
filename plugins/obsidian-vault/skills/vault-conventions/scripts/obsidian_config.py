@@ -10,15 +10,19 @@ same way. Fewer questions, and correct for any vault.
 
 Stdlib only, and tolerant: a missing file or key yields the documented default,
 never an error — so it works even on a fresh vault that hasn't written configs.
+The CLI still fails loudly on a `--vault` that does not exist, and warns on stderr
+when the vault has no config folder (every value is then a fallback).
 
 Import:  from obsidian_config import attachment_layout, link_format, daily_notes
 Run:     python obsidian_config.py --vault PATH [--config-dir .obsidian]
          -> dumps the resolved settings as JSON, for prose routines to consume.
 """
+
 from __future__ import annotations
 
 import argparse
 import json
+import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -38,6 +42,7 @@ def _load(vault: Path, name: str, config_dir: str) -> dict:
 
 
 # --- Attachments -----------------------------------------------------------
+
 
 @dataclass
 class AttachmentLayout:
@@ -65,9 +70,12 @@ class AttachmentLayout:
         return note_path.parent / self.folder  # type: ignore[operator]  # per-note
 
 
-def attachment_layout(vault: Path, config_dir: str = DEFAULT_CONFIG_DIR, *,
-                      fallback: tuple[str, str | None] = ("per-note", "attachments")
-                      ) -> AttachmentLayout:
+def attachment_layout(
+    vault: Path,
+    config_dir: str = DEFAULT_CONFIG_DIR,
+    *,
+    fallback: tuple[str, str | None] = ("per-note", "attachments"),
+) -> AttachmentLayout:
     """Resolve the vault's attachment location. Maps `attachmentFolderPath`:
 
     `/` -> root | `./` -> same-folder | `./sub` -> per-note `sub`
@@ -98,15 +106,17 @@ def parse_layout(spec: str) -> AttachmentLayout:
     if sep and kind in ("central", "per-note") and name:
         return AttachmentLayout(kind, name, "override", None)
     raise ValueError(
-        f"bad layout {spec!r}: use root | same-folder | central:NAME | per-note:NAME")
+        f"bad layout {spec!r}: use root | same-folder | central:NAME | per-note:NAME"
+    )
 
 
 # --- Links -----------------------------------------------------------------
 
+
 @dataclass
 class LinkFormat:
     use_markdown_links: bool  # app.json.useMarkdownLinks (default False = wikilinks)
-    new_link_format: str      # shortest | relative | absolute
+    new_link_format: str  # shortest | relative | absolute
     source: str
 
 
@@ -123,10 +133,11 @@ def link_format(vault: Path, config_dir: str = DEFAULT_CONFIG_DIR) -> LinkFormat
 
 # --- Daily notes -----------------------------------------------------------
 
+
 @dataclass
 class DailyNotes:
-    folder: str          # "" = vault root
-    format: str          # moment.js format; default YYYY-MM-DD
+    folder: str  # "" = vault root
+    format: str  # moment.js format; default YYYY-MM-DD
     template: str | None
     source: str
 
@@ -144,6 +155,7 @@ def daily_notes(vault: Path, config_dir: str = DEFAULT_CONFIG_DIR) -> DailyNotes
 
 # --- Templates -------------------------------------------------------------
 
+
 def template_folders(vault: Path, config_dir: str = DEFAULT_CONFIG_DIR) -> list[str]:
     """Configured template folders, from the core Templates and Templater plugins.
 
@@ -156,8 +168,9 @@ def template_folders(vault: Path, config_dir: str = DEFAULT_CONFIG_DIR) -> list[
     core = _load(vault, "templates.json", config_dir).get("folder")
     if isinstance(core, str) and core.strip("/"):
         folders.append(core.strip("/"))
-    templater = _load(vault, "plugins/templater-obsidian/data.json",
-                      config_dir).get("templates_folder")
+    templater = _load(vault, "plugins/templater-obsidian/data.json", config_dir).get(
+        "templates_folder"
+    )
     if isinstance(templater, str) and templater.strip("/"):
         folders.append(templater.strip("/"))
     seen: set[str] = set()
@@ -183,12 +196,25 @@ def resolve_all(vault: Path, config_dir: str = DEFAULT_CONFIG_DIR) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser(
-        description="Dump an Obsidian vault's resolved settings as JSON.")
+        description="Dump an Obsidian vault's resolved settings as JSON."
+    )
     ap.add_argument("--vault", default=".", help="Vault root (default: cwd)")
-    ap.add_argument("--config-dir", default=DEFAULT_CONFIG_DIR,
-                    help="Obsidian config dir (default: .obsidian)")
+    ap.add_argument(
+        "--config-dir",
+        default=DEFAULT_CONFIG_DIR,
+        help="Obsidian config dir (default: .obsidian)",
+    )
     args = ap.parse_args()
-    print(json.dumps(resolve_all(Path(args.vault), args.config_dir), indent=2))
+    from _vault import require_vault_dir  # deferred: _vault imports this module
+
+    vault = require_vault_dir(args.vault)
+    if not (vault / args.config_dir).is_dir():
+        print(
+            f"warning: no {args.config_dir}/ in {vault} — is this the vault root? "
+            "Every setting below is a fallback default.",
+            file=sys.stderr,
+        )
+    print(json.dumps(resolve_all(vault, args.config_dir), indent=2))
 
 
 if __name__ == "__main__":

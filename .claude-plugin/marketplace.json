@@ -1,7 +1,7 @@
 {
   "name": "agent-plugins",
   "description": "Curated coding assistant workflows for code, notes, projects, and conversations, packaged as Claude Code plugins and Agent Skills.",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "owner": {
     "name": "Aliaksei Chymba",
     "email": "alesha.chimba@gmail.com"
