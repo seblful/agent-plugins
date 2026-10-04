@@ -2,6 +2,7 @@
 name: refactor-interfaces
 description: "Scan a codebase for deepening opportunities — shallow modules, wrong seams, leaking interfaces — present them as a visual HTML report, then design and implement the ones you pick, one commit per candidate."
 allowed-tools: Read, Glob, Grep, Bash, Agent, Edit, Write, Skill, Artifact
+argument-hint: "[area to focus on]"
 ---
 
 # Refactor Interfaces
@@ -12,7 +13,9 @@ Turn shallow modules into deep ones. **Load the `codebase-design` skill** and us
 
 ## Phase 1 — Explore
 
-Walk the codebase with `Explore` agents, following friction:
+**Look where code changes.** Deepening pays off in code that keeps changing. If the user named an area, take it. Otherwise rank hot spots with `git log -n 200 --name-only --format= | sort | uniq -c | sort -rn` and look there first; widen only if changes are scattered.
+
+Walk that area with `Explore` agents, following friction:
 
 - one concept bouncing between many small modules
 - shallow modules — interface nearly as complex as the implementation
@@ -32,29 +35,16 @@ Each card: a title naming the deepening, a strength badge, a dependency tag (`in
 
 **The diagrams carry the weight** — if one needs a paragraph, redraw it. Candidates differ in graph shape, never styling: `module`, `deep` (what the after collapses into), `faded` (now internal), `leak` (reached past its seam). No other diagram kinds.
 
-Publish it as an Artifact with `icon` `report` and a one-sentence description naming the repo and candidate count; if you cannot, give the local path. Then ask once, proposing no interfaces yet: "Which of these should I implement? (e.g. `1, 3`) — your pick is the go-ahead; I design and implement them without asking again."
+Publish it as an Artifact with `icon` `report` and a one-sentence description naming the repo and candidate count; if you cannot, give the local path. Then ask once, proposing no interfaces: "Which of these should I implement? (e.g. `1, 3`) — your pick is the go-ahead; I implement them without asking again."
 
-## Phase 3 — Design
+## Phase 3 — Implement
 
-**The pick is the approval** — never ask the user to confirm a design. For each chosen candidate, in implementation order (one that reshapes a module another touches goes first), post one block:
-
-- **Interface** — entry points, parameters, invariants, error modes
-- **Behind the seam** — what stops being a caller's problem
-- **Callers** — what changes at each call site
-- **Tests** — which move to the new interface, which are deleted
-
-One design per candidate — the strongest, not a menu.
-
-**Output:** the designs, posted as a record the user can interrupt; start Phase 4 in the same turn.
-
-## Phase 4 — Implement
-
-**This workflow commits** — an exception to the house default: each candidate is one reviewable, revertable commit. Implement in the main session, not subagents, through the list without pausing between candidates.
+**The pick is the approval** — start implementing right after it, with no design step to confirm. **This workflow commits** — an exception to the house default: each candidate is one reviewable, revertable commit. Implement in the main session, not subagents, without pausing between candidates; a candidate that reshapes a module another touches goes first.
 
 **Setup.** Require a clean tree (`git status --porcelain` empty), else stop and ask. The current branch is the target. Create one worktree for the run — `git worktree add --detach <path> HEAD` with `<path>` in the scratchpad — install there if needed, and record the baseline of the project's test, type-check, lint, and build commands. Match `git log --oneline -10` for commit style.
 
-**Per candidate, in the worktree:** implement the design and update every caller, with no shim; move tests to the new interface by [replace, don't layer](../codebase-design/DEEPENING.md); re-run the baseline and fix any red the change caused; stage by path — deletions included, never `git add -A` — and commit with the card's problem, solution, and verification result in the body; `git cherry-pick <sha>` onto the target branch; report one line with the candidate and its hash.
+**Per candidate, in the worktree:** design the interface as you go — the deepest one the code allows, by `codebase-design` — and update every caller, with no shim; move tests to the new interface by [replace, don't layer](../codebase-design/DEEPENING.md); re-run the baseline and fix any red the change caused; stage by path — deletions included, never `git add -A` — and commit with the card's problem and solution, the new interface, and the verification result in the body; `git cherry-pick <sha>` onto the target branch; report one line with the candidate and its hash.
 
-**Stop and ask only when** a red the change caused will not go green (leave it uncommitted in the worktree), a cherry-pick conflicts (`git cherry-pick --abort` — never resolve by guessing), or a design does not fit the code.
+**Stop and ask only when** a red the change caused will not go green (leave it uncommitted in the worktree), a cherry-pick conflicts (`git cherry-pick --abort` — never resolve by guessing), or a candidate turns out not to fit the code.
 
 **Finish:** `git worktree remove <path>`, then report every hash in order and the final verification result. Never push, amend, or squash.
