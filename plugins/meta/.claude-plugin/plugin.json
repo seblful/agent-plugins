@@ -1,6 +1,6 @@
 {
   "name": "meta",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Tools that act across all your projects rather than inside one codebase — capturing bugs, features, tasks, and ideas from any session into a central backlog repo you configure.",
   "author": {
     "name": "Aliaksei Chymba",

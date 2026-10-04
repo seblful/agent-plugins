@@ -1,8 +1,8 @@
 ---
 name: issue
-description: "Capture a bug, feature, enhancement, task, or idea as a GitHub issue in the backlog repo set by the ISSUES_REPO or CLAUDE_ISSUES_REPO env var. Check duplicates and confirm the draft before filing."
+description: "Capture a bug, feature, enhancement, task, or idea as a GitHub issue in the backlog repo set by ISSUES_REPO or CLAUDE_ISSUES_REPO; checks duplicates and confirms the draft before filing. Use when the user says file, log, track, or capture this, or add it to the backlog — and offer it, unasked, right after a skill, hook, command, or agent misbehaved. Not for the current repo's own issue tracker unless it is the backlog."
 argument-hint: "[what to capture — omit to use what just happened in this session]"
-allowed-tools: Bash, Read, Write, Grep
+allowed-tools: Read, Write, Grep, Bash(gh auth status *), Bash(gh repo view *), Bash(gh issue list *), Bash(gh search issues *), Bash(gh label list *)
 ---
 
 # File Issue
@@ -21,13 +21,23 @@ The user's request, if specific, is what to capture. Otherwise capture what the 
 
 The destination is the `ISSUES_REPO` environment variable, with `CLAUDE_ISSUES_REPO` accepted for existing Claude Code setups. **There is no default** — if both are unset or empty, ask the user to set one to an `owner/name`. Never fall back to any repo.
 
-Resolve it **once** at the start and reuse that literal `owner/name` in every `gh` command (each Bash call is a fresh shell, so do not rely on a variable persisting):
+Resolve it **once** at the start and reuse that literal `owner/name` in every `gh` command (each shell call is a fresh shell, so do not rely on a variable persisting). Read the value first, in the active shell:
+
+```bash
+printf '%s\n' "${ISSUES_REPO:-$CLAUDE_ISSUES_REPO}"                                   # bash / Git Bash
+```
+
+```powershell
+if ($env:ISSUES_REPO) { $env:ISSUES_REPO } else { $env:CLAUDE_ISSUES_REPO }        # PowerShell
+```
+
+**Empty output means "not configured" — stop there.** Never pass an empty or unexpanded value to `gh`: `gh repo view ""` silently resolves to the repo of the working directory, the exact fallback this skill forbids. Only with a non-empty value, confirm access with that literal:
 
 ```
-gh repo view "${ISSUES_REPO:-$CLAUDE_ISSUES_REPO}" --json nameWithOwner -q .nameWithOwner
+gh repo view <owner/name> --json nameWithOwner -q .nameWithOwner
 ```
 
-Use equivalent environment-variable syntax for the active shell. If both variables are empty, treat that as "not configured" and stop. Otherwise pass `--repo <that value>` to **every** `gh` command below, so the working directory never decides where the issue lands. If the repo is inaccessible, say so and stop.
+Pass `--repo <owner/name>` to **every** `gh` command below, so the working directory never decides where the issue lands. If the repo is inaccessible, say so and stop.
 
 ## What gets captured
 
@@ -51,10 +61,17 @@ Build it from what you actually observed or what the user described:
 **Do not invent** repro steps, stack traces, versions, or requirements you did not see. If something is unknown, omit it or mark it "unknown". A thin accurate issue beats a padded speculative one.
 
 ### 4. Check for duplicates
-`gh issue list --repo <owner/name> --search "<key terms>" --state all --limit 10`. If a clear match exists, offer to comment on it (`gh issue comment <n> --repo <owner/name> --body-file <file>`) instead of opening a duplicate.
+Run two searches — GitHub search ANDs every term, so one over-specific query misses real duplicates:
+
+```
+gh issue list --repo <owner/name> --search "<key terms>" --state all --limit 10 --json number,title,state,url
+gh search issues "<2-3 core words>" --repo <owner/name> --match title --limit 10 --json number,title,state,url
+```
+
+The first casts wide over body and title (include the exact error string for a bug); the second is a short title-only probe. If a clear match exists, offer to comment on it (`gh issue comment <n> --repo <owner/name> --body-file <file>`) instead of opening a duplicate.
 
 ### 5. Pick labels (existing ones only)
-`gh label list --repo <owner/name>`. Choose 0–2 that fit the type (e.g. `bug`, `enhancement`). **Never pass a label that is not in the list** — `gh issue create --label` errors on unknown labels. If none fit, use no label. If a new label is clearly warranted, ask before `gh label create`.
+`gh label list --repo <owner/name> --limit 200 --json name -q '.[].name'` — without `--limit`, `gh` returns only the first 30 and a fitting label can look absent. Choose 0–2 that fit the type (e.g. `bug`, `enhancement`). **Never pass a label that is not in the list** — `gh issue create --label` errors on unknown labels. If none fit, use no label. If a new label is clearly warranted, ask before `gh label create`.
 
 ### 6. Draft
 Title: one concise line naming the problem or change — not "error occurred". Include only sections you can actually fill.
@@ -118,5 +135,7 @@ Write the body to a temp file first (avoids shell-quoting problems, especially i
 ```
 gh issue create --repo <owner/name> --title "<title>" --label <label> --body-file <tmpfile>
 ```
+
+Labels: drop `--label` entirely for none; for two, repeat the flag (`--label bug --label docs`) or join them (`--label "bug,docs"`).
 
 Print the returned issue URL. If the user chose to comment on an existing issue instead, use `gh issue comment <n> --repo <owner/name> --body-file <tmpfile>`.
