@@ -1,6 +1,6 @@
 {
   "name": "lenses",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Tools that change how you and your coding assistant work rather than what the code says — a high-level map of an unfamiliar area, an ultra-compressed terse mode, a one-question-at-a-time plan interview, and a stateful multi-session teaching workspace.",
   "author": {
     "name": "Aliaksei Chymba",
