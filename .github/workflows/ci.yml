@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v10.0.1
+      - run: uv sync --locked
+      - run: uv run ruff check
+      - run: uv run ruff format --check
+      - run: uv run pytest --cov --cov-report=term-missing
+      - name: Repo rules (descriptions, links, version bumps)
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+        run: |
+          if [ -n "$BASE" ] && [ "$BASE" != "0000000000000000000000000000000000000000" ]; then
+            uv run python scripts/check_repo.py --base "$BASE"
+          else
+            uv run python scripts/check_repo.py
+          fi
+      - name: Plugin manifests and component frontmatter
+        run: |
+          npx -y @anthropic-ai/claude-code plugin validate --strict .
+          for plugin in plugins/*/; do
+            npx -y @anthropic-ai/claude-code plugin validate --strict "$plugin"
+          done

@@ -18,8 +18,10 @@ Process and reference are paired: `code-sweep` ↔ `code-smells`, `refactor-inte
 ## Layout and frontmatter
 
 - kebab-case directories; `SKILL.md` uppercase; a skill's name **is** its Claude slash name, namespaced by plugin.
-- **Skill** — `name`, `description`, plus Claude-specific `allowed-tools` and `argument-hint` only when needed; the body must work without them. **Agent** (Claude-only) — `name`, `description`, optional `tools`.
-- The `description` is what makes a skill trigger. Write it as *when to use this*, name the triggers, and name what it is **not** for.
+- **Skill** — `name`, `description`, plus Claude-specific `allowed-tools`, `argument-hint`, and `disable-model-invocation: true` (for a workflow that commits or runs third-party code, so only the user starts it) only when needed; the body must work without them. **Agent** (Claude-only) — `name`, `description`, optional `tools`; its body is one line, ``Read `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` and follow it`` — a relative link does not resolve from the user's project, and agents never run outside Claude, so the variable is safe there.
+- **Quote every `description`.** An unquoted value containing `: ` fails YAML parsing, and Claude then loads the component with every field but its name silently dropped.
+- The `description` is what makes a skill trigger. Write it as *when to use this*, name the triggers, and name what it is **not** for — it must contain the literal phrases `Use when` and `Not for`; CI checks.
+- **`allowed-tools` pre-approves, it does not restrict.** Whatever it lists runs without a prompt for the turn that invokes the skill. Never list unscoped `Bash` in a skill that changes files, runs commands with side effects, or files anything — scope it to read-only commands (`Bash(git status *)`) or leave it out, so the mutating step still prompts.
 - The `vault-conventions` skill holds `CONVENTIONS.md` and `AUTHORING.md` — read them before touching anything in `plugins/obsidian-vault/`.
 
 ## Voice
@@ -48,3 +50,16 @@ Larger bumps happen **only when the user asks**: minor for a new skill, command,
 ## Keeping descriptions in sync
 
 Each plugin's description is written twice — `plugins/<name>/.claude-plugin/plugin.json` and that plugin's entry in `.claude-plugin/marketplace.json`. Change one, change the other. Adding or removing a skill or agent also means updating its bullet in `README.md`.
+
+## Before you commit
+
+Run every gate; CI runs the same ones.
+
+```bash
+uv run ruff check && uv run ruff format --check
+uv run pytest
+uv run python scripts/check_repo.py --base origin/main   # descriptions, links, README bullets, version bumps
+claude plugin validate --strict . && for p in plugins/*/; do claude plugin validate --strict "$p"; done
+```
+
+**A script change ships with a test** in `tests/`, red before the fix and green after.

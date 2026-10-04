@@ -69,6 +69,8 @@ Ask your assistant to use a workflow by its name, for example “use `code-sweep
 
 Each language skill is the layer over `code-smells` and `codebase-design`: how their principles are spelled in that language, the traps easy to miss in it, how to test it, and what is not a finding. The named stack is the greenfield default only — a project's own choices outrank it.
 
+`languages` depends on `code`: Claude Code installs it automatically; with OpenCode, copy `code-smells` and `codebase-design` alongside the language skills.
+
 - **python-code** (skill) — Python: principles mapped to types, dataclasses, pydantic, `with`, and structured async; Python-only traps; pytest practice; on the uv/ruff/ty stack.
 - **typescript-code** (skill) — TypeScript: strict compiler baseline, discriminated unions, `unknown` parsed at the boundary, handled promises; TypeScript-only traps; Vitest practice.
 - **python-notebooks** (skill) — Reproducible Jupyter notebooks: Restart & Run All as the contract, hidden-state discipline, uv-managed kernels, promotion of stable code to modules, jupytext pairing for version control, and restraint in figures and prose.
@@ -77,6 +79,7 @@ Each language skill is the layer over `code-smells` and `codebase-design`: how t
 
 - **code-reviewer** (skill; Claude agent) — Senior code reviewer that evaluates diffs across correctness, readability, architecture, security, and performance, with severity-labeled line-level suggestions.
 - **diagnosing-bugs** (skill) — A feedback-loop-first discipline for hard bugs and performance regressions: build a tight red-capable repro, minimise it, generate falsifiable hypotheses, instrument, fix with a regression test, then clean up.
+
 The codebase routines are split by **what they change**, each pairing a workflow skill with the reference skill that defines its vocabulary. One rule separates the first two — *would the fix change what a caller must know?* No → `code-sweep`. Yes → `refactor-interfaces`. The third changes no code at all:
 
 |  | Reference skill | Workflow skill |
@@ -86,7 +89,7 @@ The codebase routines are split by **what they change**, each pairing a workflow
 | **Docs** — the markdown a human reads | `writing-docs` | `docs-sweep` |
 
 - **code-smells** (skill) — Catalog of implementation-level smells across three lenses (correctness & robustness, bad practices & idiom, duplication/dead weight/complexity), each with its fix and — equally important — the false positives to suppress.
-- **code-sweep** (skill) — Codebase-wide sweep against the `code-smells` catalog, every finding verified by hand and listed as a defect list tiered by severity and evidenced by before/after code — then applied in attributable batches against a baseline verification signal, behaviour changes never mixed with pure refactors, only on your approval.
+- **code-sweep** (skill) — Codebase-wide sweep against the `code-smells` catalog, every finding verified by hand and listed as a defect list tiered by severity — security hazards first, never handed off — and evidenced by before/after code — then applied in attributable batches against a baseline verification signal, behaviour changes never mixed with pure refactors, only on your approval.
 - **codebase-design** (skill) — Shared vocabulary for designing deep modules: module, interface, depth, seam, adapter, leverage, locality, plus the deepening patterns.
 - **docs-sweep** (skill) — Condense every markdown doc a human reads against `writing-docs`: each doc gets one verdict — keep, tighten, split, merge, or delete — presented as a plan with lines now → expected, then applied one doc at a time on your approval, moving facts rather than losing them and fixing every link that moved.
 - **refactor-interfaces** (skill) — Surface deepening opportunities and reduce shallow modules, presented as a diagram-led HTML report of up to five candidates. It looks where code changes most. Pick the ones you want — the pick is the only approval — and each is designed and implemented in a shared worktree, verified against the project's own gates, and cherry-picked onto your branch — one commit per candidate, no pause between them, never pushed.
