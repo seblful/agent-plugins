@@ -9,7 +9,7 @@ A curated collection of workflows for Claude Code, Codex, and OpenCode, grouped 
 Five plugins, grouped by their target:
 
 - **`/plugins/languages`** — acts on code in one language: Python and TypeScript practice, testing included, plus reproducible Jupyter notebooks — each the language layer over `code`'s language-agnostic skills
-- **`/plugins/code`** — acts on any codebase, in any language: review, bug diagnosis, refactoring, architectural deepening, and keeping a project in sync with the template it came from
+- **`/plugins/code`** — acts on any codebase, in any language: review, bug diagnosis, refactoring, architectural deepening, keeping a project in sync with the template it came from, and clearing out stale branches and worktrees
 - **`/plugins/obsidian-vault`** — acts on your notes: maintenance routines for Obsidian vaults
 - **`/plugins/lenses`** — acts on you and the conversation: code maps, terse mode, plan grilling, and a teaching workspace
 - **`/plugins/meta`** — acts across all your projects: capturing bugs and ideas to a central GitHub backlog
@@ -98,6 +98,10 @@ The codebase routines are split by **what they change**, each pairing a workflow
 Alongside the pair, one workflow changes the codebase's *baseline* rather than its code:
 
 - **update-from-template** (skill) — Pull the latest [Copier](https://copier.readthedocs.io/) template changes into a project, in any language. Requires a way to run Copier (`uvx --with jinja2-time copier`, `pipx run copier`, or a global install) and a git repo with a clean tree. Previews the template diff and takes a baseline from the project's *own* gates — discovered, not assumed — then branches, runs `copier update`, and owns what Copier could not decide: every conflict marker and `.rej` hunk resolved by intent under one rule — *the project wins on content, the template wins on shape* — with the resolution table keyed by what each file does (manifest, lockfile, hook config, assistant instructions, source skeleton) rather than what it is called. Ambiguities are surfaced rather than guessed. Adopts a template retroactively in a project with no answers file, by rendering a baseline to scratch and merging it in.
+
+And one workflow tidies the repository itself rather than its code:
+
+- **git-cleanup** (skill) — Clear out a repo's leftover branches and worktrees, or every repo in a folder. Inventories merged, squash-merged, PR-merged, and gone-upstream branches, plus missing, dirty, locked, and orphaned worktrees — `.claude/worktrees` folders included — and tiers each as safe, at risk, or kept, showing what an at-risk deletion would lose. Applies only the numbers you approve, in the order git requires (prune, remove worktrees, delete branches, and remote branches last and only when asked), records every deleted tip SHA so any branch can be restored, and never forces a failed step on its own.
 
 ### obsidian-vault
 
